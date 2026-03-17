@@ -5,12 +5,22 @@
 
 udata = progbase
 
+/*
+ * plt_idle – called by the FUZIX scheduler whenever no process is runnable.
+ *
+ * For CYW43 wireless builds (FUZIX_CYW43_BUILD is set by CMakeLists.txt)
+ * plt_idle is defined in C inside net_cyw43.c so that cyw43_arch_poll()
+ * can be called before WFI.  We skip the assembly definition here to avoid
+ * a duplicate-symbol linker error.
+ */
+#ifndef FUZIX_CYW43_BUILD
 .text
 .thumb_func
 .global plt_idle
 plt_idle:
     wfi
     bx lr
+#endif /* FUZIX_CYW43_BUILD */
 
 .text
 .thumb_func
