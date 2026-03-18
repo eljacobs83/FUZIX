@@ -127,15 +127,11 @@ int main(void)
     procmem = USERMEM / 1024;
     /* Turn on power LED */
 #if defined(POWER_LED_IS_CYW43)
-    /* On Pico W / Pico 2W the LED is on the CYW43 chip.
-     * cyw43_arch_init() has already been called by netdev_init()
-     * (device_init → netdev_init) before we reach here through the
-     * fuzix_main() → ... → device_init() call chain.
-     * Use the CYW43 GPIO to drive it.  */
-    /* TODO: cyw43_arch_gpio_put() will crash if cyw43_arch_init() failed
-     * inside netdev_init().  Expose a "cyw43_ready" flag from netdev_init()
-     * and guard this call behind it. */
-    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
+    /* On Pico W / Pico 2W the LED is wired through the CYW43 chip.
+     * cyw43_arch_init() must be called before cyw43_arch_gpio_put()
+     * is safe to use, and that happens inside netdev_init() which is
+     * called from device_init() → fuzix_main().  The LED is therefore
+     * lit there, not here.  Nothing to do at this point.             */
 #else
     gpio_init(POWER_LED);
     gpio_set_dir(POWER_LED, GPIO_OUT);

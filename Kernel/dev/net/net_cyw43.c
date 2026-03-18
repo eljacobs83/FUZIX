@@ -515,15 +515,25 @@ int netproto_autobind(struct socket *s)
     s->src_addr.sa.family               = AF_INET;
     s->src_addr.sa.sin.sin_addr.s_addr  = 0;
 
-    /* TODO: if all ephemeral ports 5000-32767 are bound this loop will
-     * spin forever.  Add a cycle counter and return EADDRNOTAVAIL. */
-    /* Find an unused ephemeral port                                   */
-    do {
-        s->src_addr.sa.sin.sin_port = lwip_htons(autoport);
-        autoport++;
-        if (autoport > 32767)
-            autoport = 5000;
-    } while (netproto_find_local(&s->src_addr) != -1);
+    /* Scan for an unused ephemeral port in the range 5000-32767.
+     * Bail out after one full cycle to avoid an infinite loop when all
+     * ports are exhausted.
+     */
+    {
+        uint16_t start = autoport;
+        for (;;) {
+            s->src_addr.sa.sin.sin_port = lwip_htons(autoport);
+            autoport++;
+            if (autoport > 32767)
+                autoport = 5000;
+            if (netproto_find_local(&s->src_addr) == -1)
+                break;          /* port is free                        */
+            if (autoport == start) {
+                udata.u_error = EADDRNOTAVAIL;
+                return -1;
+            }
+        }
+    }
 
     return do_bind(s, s->src_addr.sa.sin.sin_port);
 }
@@ -759,9 +769,15 @@ int netproto_read(struct socket *s)
             if (chunk > (uint16_t)sizeof(buf))
                 chunk = (uint16_t)sizeof(buf);
             copied = pbuf_copy_partial(cs->rx_head, buf, chunk, off);
-            if (copied == 0)
-                break;  /* TODO: 0 mid-datagram means a corrupt pbuf chain;
-                         * caller receives a silently-truncated datagram. */
+            if (copied == 0) {
+                /* pbuf chain is corrupt; discard and report error     */
+                pbuf_free(cs->rx_head);
+                cs->rx_head   = NULL;
+                cs->rx_offset = 0;
+                s->s_iflags  &= ~SI_DATA;
+                udata.u_error = EIO;
+                return 0;
+            }
             if (uput(buf, udata.u_base + off, copied) == -1) {
                 udata.u_error = EFAULT;
                 return 0;
@@ -1117,10 +1133,10 @@ arg_t netproto_ioctl(struct socket *s, int op, char *ifr_u)
         goto copyback;
 
     /* Setters – propagate changes into the lwIP netif.
-     * TODO: when nif == NULL (WiFi not yet associated) setters silently
-     * succeed; consider returning ENETDOWN to match getter behaviour.  */
+     * Return ENETDOWN if the netif is not yet up (nif == NULL).        */
     case SIOCSIFADDR:
-        if (nif != NULL) {
+        if (nif == NULL) { udata.u_error = ENETDOWN; return -1; }
+        {
             ip4_addr_t ip;
             ip.addr = ifr.ifr_addr.sa.sin.sin_addr.s_addr;
             netif_set_ipaddr(nif, &ip);
@@ -1128,7 +1144,8 @@ arg_t netproto_ioctl(struct socket *s, int op, char *ifr_u)
         return 0;
 
     case SIOCSIFNETMASK:
-        if (nif != NULL) {
+        if (nif == NULL) { udata.u_error = ENETDOWN; return -1; }
+        {
             ip4_addr_t nm;
             nm.addr = ifr.ifr_netmask.sa.sin.sin_addr.s_addr;
             netif_set_netmask(nif, &nm);
@@ -1136,7 +1153,8 @@ arg_t netproto_ioctl(struct socket *s, int op, char *ifr_u)
         return 0;
 
     case SIOCSIFGWADDR:
-        if (nif != NULL) {
+        if (nif == NULL) { udata.u_error = ENETDOWN; return -1; }
+        {
             ip4_addr_t gw;
             gw.addr = ifr.ifr_gwaddr.sa.sin.sin_addr.s_addr;
             netif_set_gw(nif, &gw);
@@ -1144,12 +1162,11 @@ arg_t netproto_ioctl(struct socket *s, int op, char *ifr_u)
         return 0;
 
     case SIOCSIFFLAGS:
-        if (nif != NULL) {
-            if (ifr.ifr_flags & IFF_UP)
-                netif_set_up(nif);
-            else
-                netif_set_down(nif);
-        }
+        if (nif == NULL) { udata.u_error = ENETDOWN; return -1; }
+        if (ifr.ifr_flags & IFF_UP)
+            netif_set_up(nif);
+        else
+            netif_set_down(nif);
         return 0;
 
     default:
@@ -1198,6 +1215,15 @@ void netdev_init(void)
         kputs("cyw43: init failed\n");
         return;
     }
+
+    /*
+     * Light the power LED via the CYW43 GPIO now that the chip is up.
+     * This is the earliest safe point; driving it before cyw43_arch_init()
+     * returns is undefined behaviour (the SPI link is not ready yet).
+     * main() skips the LED init for PICO_CYW43_SUPPORTED boards and
+     * defers it here instead.
+     */
+    cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 
     cyw43_arch_enable_sta_mode();
     kputs("cyw43: WiFi ready\n");
