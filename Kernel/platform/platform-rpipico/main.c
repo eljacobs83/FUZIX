@@ -132,6 +132,9 @@ int main(void)
      * (device_init → netdev_init) before we reach here through the
      * fuzix_main() → ... → device_init() call chain.
      * Use the CYW43 GPIO to drive it.  */
+    /* TODO: cyw43_arch_gpio_put() will crash if cyw43_arch_init() failed
+     * inside netdev_init().  Expose a "cyw43_ready" flag from netdev_init()
+     * and guard this call behind it. */
     cyw43_arch_gpio_put(CYW43_WL_GPIO_LED_PIN, 1);
 #else
     gpio_init(POWER_LED);

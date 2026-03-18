@@ -158,6 +158,9 @@ static void slot_free_entry(uint8_t slot)
  */
 static void net_wake(uint8_t n)
 {
+    /* Guard: n must be a valid slot index */
+    if (n >= NSOCKET)
+        return;
     sock_wake[n] = 1;
     wakeup(sock_wake + n);
     wakeup(sockets + n);
@@ -175,10 +178,18 @@ static err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb,
                          struct pbuf *p, err_t err)
 {
     struct cyw43_sock *cs = (struct cyw43_sock *)arg;
-    struct socket     *s  = cs->fuzix_sock;
+    struct socket     *s;
 
     used(tpcb);
     used(err);
+
+    /* Guard: callback may fire after slot teardown */
+    if (cs == NULL || cs->fuzix_sock == NULL) {
+        if (p != NULL)
+            pbuf_free(p);
+        return ERR_OK;
+    }
+    s = cs->fuzix_sock;
 
     if (p == NULL) {
         /* FIN from remote – signal EOF                                */
@@ -206,10 +217,14 @@ static err_t tcp_recv_cb(void *arg, struct tcp_pcb *tpcb,
 static err_t tcp_sent_cb(void *arg, struct tcp_pcb *tpcb, u16_t len)
 {
     struct cyw43_sock *cs = (struct cyw43_sock *)arg;
-    struct socket     *s  = cs->fuzix_sock;
+    struct socket     *s;
 
     used(tpcb);
     used(len);
+
+    if (cs == NULL || cs->fuzix_sock == NULL)
+        return ERR_OK;
+    s = cs->fuzix_sock;
 
     s->s_iflags &= ~SI_THROTTLE;
     net_wake(s->s_num);
@@ -222,9 +237,13 @@ static err_t tcp_sent_cb(void *arg, struct tcp_pcb *tpcb, u16_t len)
 static err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 {
     struct cyw43_sock *cs = (struct cyw43_sock *)arg;
-    struct socket     *s  = cs->fuzix_sock;
+    struct socket     *s;
 
     used(tpcb);
+
+    if (cs == NULL || cs->fuzix_sock == NULL)
+        return ERR_OK;
+    s = cs->fuzix_sock;
 
     if (err != ERR_OK) {
         cs->flags  |= CFLG_ERR;
@@ -244,7 +263,11 @@ static err_t tcp_connected_cb(void *arg, struct tcp_pcb *tpcb, err_t err)
 static void tcp_err_cb(void *arg, err_t err)
 {
     struct cyw43_sock *cs = (struct cyw43_sock *)arg;
-    struct socket     *s  = cs->fuzix_sock;
+    struct socket     *s;
+
+    if (cs == NULL || cs->fuzix_sock == NULL)
+        return;
+    s = cs->fuzix_sock;
 
     cs->pcb.tcp  = NULL;        /* PCB is gone; do not touch it        */
     cs->flags   |= CFLG_ERR;
@@ -335,9 +358,16 @@ static void udp_recv_cb(void *arg, struct udp_pcb *pcb,
                         const ip_addr_t *addr, u16_t port)
 {
     struct cyw43_sock *cs = (struct cyw43_sock *)arg;
-    struct socket     *s  = cs->fuzix_sock;
+    struct socket     *s;
 
     used(pcb);
+
+    /* Guard: callback may fire after slot teardown */
+    if (cs == NULL || cs->fuzix_sock == NULL) {
+        pbuf_free(p);
+        return;
+    }
+    s = cs->fuzix_sock;
 
     if (cs->rx_head != NULL) {
         pbuf_free(cs->rx_head);     /* drop previous unread datagram   */
@@ -435,9 +465,15 @@ int netproto_socket(void)
  */
 static int do_bind(struct socket *s, uint16_t net_port)
 {
-    struct cyw43_sock *cs    = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
     uint16_t           hport = lwip_ntohs(net_port); /* host byte order */
     err_t              rc;
+
+    if (s->proto.slot >= NSOCKET) {
+        udata.u_error = EBADF;
+        return -1;
+    }
+    cs = &cyw43_socks[s->proto.slot];
 
     if (cs->type == SLOT_TCP) {
         struct tcp_pcb *pcb = tcp_new();
@@ -479,6 +515,8 @@ int netproto_autobind(struct socket *s)
     s->src_addr.sa.family               = AF_INET;
     s->src_addr.sa.sin.sin_addr.s_addr  = 0;
 
+    /* TODO: if all ephemeral ports 5000-32767 are bound this loop will
+     * spin forever.  Add a cycle counter and return EADDRNOTAVAIL. */
     /* Find an unused ephemeral port                                   */
     do {
         s->src_addr.sa.sin.sin_port = lwip_htons(autoport);
@@ -502,8 +540,7 @@ int netproto_bind(struct socket *s)
         return 0;
     }
     memcpy(&s->src_addr, &udata.u_net.addrbuf, sizeof(struct ksockaddr));
-    do_bind(s, s->src_addr.sa.sin.sin_port);
-    return 0;
+    return do_bind(s, s->src_addr.sa.sin.sin_port);
 }
 
 /* ------------------------------------------------------------------ */
@@ -512,7 +549,13 @@ int netproto_bind(struct socket *s)
 
 int netproto_listen(struct socket *s)
 {
-    struct cyw43_sock *cs = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
+
+    if (s->proto.slot >= NSOCKET) {
+        udata.u_error = EBADF;
+        return -1;
+    }
+    cs = &cyw43_socks[s->proto.slot];
     struct tcp_pcb    *lpcb;
 
     if (cs->type != SLOT_TCP || cs->pcb.tcp == NULL) {
@@ -544,7 +587,13 @@ int netproto_listen(struct socket *s)
 
 int netproto_begin_connect(struct socket *s)
 {
-    struct cyw43_sock *cs    = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
+
+    if (s->proto.slot >= NSOCKET) {
+        udata.u_error = EBADF;
+        return 0;
+    }
+    cs = &cyw43_socks[s->proto.slot];
     ip_addr_t          dst;
     uint16_t           dport;
     err_t              rc;
@@ -629,7 +678,13 @@ int netproto_accept_complete(struct socket *s)
 
 int netproto_read(struct socket *s)
 {
-    struct cyw43_sock *cs = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
+
+    if (s->proto.slot >= NSOCKET) {
+        udata.u_error = EBADF;
+        return 0;
+    }
+    cs = &cyw43_socks[s->proto.slot];
     uint16_t           avail, n;
 
     /* Give the network stack a chance to deliver data before sleeping  */
@@ -705,7 +760,8 @@ int netproto_read(struct socket *s)
                 chunk = (uint16_t)sizeof(buf);
             copied = pbuf_copy_partial(cs->rx_head, buf, chunk, off);
             if (copied == 0)
-                break;
+                break;  /* TODO: 0 mid-datagram means a corrupt pbuf chain;
+                         * caller receives a silently-truncated datagram. */
             if (uput(buf, udata.u_base + off, copied) == -1) {
                 udata.u_error = EFAULT;
                 return 0;
@@ -737,7 +793,13 @@ int netproto_read(struct socket *s)
 
 arg_t netproto_write(struct socket *s, struct ksockaddr *ka)
 {
-    struct cyw43_sock *cs = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
+
+    if (s->proto.slot >= NSOCKET) {
+        udata.u_error = EBADF;
+        return 0;
+    }
+    cs = &cyw43_socks[s->proto.slot];
     uint16_t           n;
     err_t              rc;
 
@@ -865,7 +927,11 @@ arg_t netproto_write(struct socket *s, struct ksockaddr *ka)
 
 arg_t netproto_shutdown(struct socket *s, uint8_t how)
 {
-    struct cyw43_sock *cs = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
+
+    if (s->proto.slot >= NSOCKET)
+        return 0;   /* nothing to do for an invalid slot */
+    cs = &cyw43_socks[s->proto.slot];
 
     if (how & SI_SHUTW) {
         s->s_iflags |= SI_SHUTW;
@@ -880,7 +946,11 @@ arg_t netproto_shutdown(struct socket *s, uint8_t how)
 
 int netproto_close(struct socket *s)
 {
-    struct cyw43_sock *cs = &cyw43_socks[s->proto.slot];
+    struct cyw43_sock *cs;
+
+    if (s->proto.slot >= NSOCKET)
+        return 0;
+    cs = &cyw43_socks[s->proto.slot];
 
     if (cs->type == SLOT_TCP) {
         if (cs->pcb.tcp != NULL) {
@@ -1046,7 +1116,9 @@ arg_t netproto_ioctl(struct socket *s, int op, char *ifr_u)
         ifr.ifr_mtu = (nif != NULL) ? (int)nif->mtu : 1500;
         goto copyback;
 
-    /* Setters – propagate changes into the lwIP netif                 */
+    /* Setters – propagate changes into the lwIP netif.
+     * TODO: when nif == NULL (WiFi not yet associated) setters silently
+     * succeed; consider returning ENETDOWN to match getter behaviour.  */
     case SIOCSIFADDR:
         if (nif != NULL) {
             ip4_addr_t ip;
