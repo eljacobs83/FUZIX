@@ -182,6 +182,12 @@ ideref:
 	if (ino)
 		i_deref(ino);
 idrop:
+	/* TODO: Bug: control reaches idrop via pdrop->ideref->idrop when
+	 * n_open_lock() returns NULL (ino == NULL). In that path ideref
+	 * correctly guards i_deref() with 'if (ino)', but i_unlock(ino)
+	 * here is unconditional. With CONFIG_BLOCK_SLEEP, i_unlock() calls
+	 * i_islocked() which dereferences 'i', causing a NULL-pointer crash.
+	 * Should be: if (ino) i_unlock(ino); */
 	i_unlock(ino);
 	/* Falls through and drops the reference count */
 cantopen:
@@ -301,6 +307,10 @@ arg_t _fcntl(void)
 		if (data & O_CLOEXEC)
 			udata.u_cloexec |= (1 << fd);
 		else
+			/* TODO: Bug: bitwise AND clears all bits EXCEPT bit 'fd',
+			 * which is the exact opposite of the intent. Clearing the
+			 * close-on-exec flag for fd requires AND-NOT:
+			 * udata.u_cloexec &= ~(1 << fd); */
 			udata.u_cloexec &= (1 << fd);
 		return 0;
 	case F_DUPFD:
