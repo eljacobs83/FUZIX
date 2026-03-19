@@ -366,6 +366,10 @@ arg_t _waitpid(void)
 			break;
 		psleep(udata.u_ptab);
 	}
+	/* TODO: Bug: when WNOHANG is set and children exist but none have exited,
+	 * POSIX requires waitpid() to return 0, not -1/EINTR. The break above
+	 * falls through to this EINTR return path, which incorrectly signals an
+	 * error. Should check (options & WNOHANG) here and return 0 in that case. */
 	udata.u_error = EINTR;
 	return -1;
 }

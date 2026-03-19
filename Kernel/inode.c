@@ -403,8 +403,14 @@ void sync(void)
 
 static void i_lock(inoptr i)
 {
+	/* TODO: Bug: the cinode struct field is named 'c_lock', not 'lock'.
+	 * i->lock accesses the wrong struct member (likely an adjacent field),
+	 * causing the deadlock detection to silently malfunction. */
 	if (i->lock == (uint16_t)udata.u_ptab)
 		panic(LOCKLOCK);
+	/* TODO: Bug: same wrong field name: 'i_lock' does not exist in struct
+	 * cinode; the field is 'c_lock'. Both the spin-wait and the assignment
+	 * below will corrupt an unrelated field and never actually lock. */
 	while(i->i_lock)
 		psleep_nosig(i);
 	i->i_lock = (uint16_t)udata.u_ptab;
@@ -413,18 +419,23 @@ static void i_lock(inoptr i)
 static void i_unlock(inoptr i)
 {
 	i_islocked(i);
+	/* TODO: Bug: field name should be 'c_lock', not 'i_lock'. See i_lock(). */
 	i->i_lock = 0;
 	pwakeup_nosig(i);
 }
 
 static void i_unlock_deref(inoptr i)
 {
+	/* TODO: Bug: field name should be 'c_lock', not 'i_lock'. See i_lock(). */
 	i->i_lock = 0;
 	i_deref(i);
 }
 
 void i_islocked(inoptr i)
 {
+	/* TODO: Bug: field name should be 'c_lock', not 'lock'. The struct cinode
+	 * has no member named 'lock'; this will read the wrong field, so the
+	 * assertion never correctly validates the lock owner. */
 	if (i->lock != (uint16_t)udata.u_ptab)
 		panic(IUNLOCK);
 }

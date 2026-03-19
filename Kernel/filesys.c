@@ -493,6 +493,9 @@ inoptr newfile(register inoptr pino, uint8_t *name)
     /* We check getperm before CRDONLY because if you reverse these two
        it breaks gcc 68hc11 3.4 */
     if (!(getperm(pino) & OTH_WR)) {
+        /* TODO: Bug: EPERM is wrong here; a permission denied on a write-bit
+         * check should return EACCES. EPERM is reserved for operations not
+         * permitted even for the owner/superuser. */
         udata.u_error = EPERM;
         goto nogood;
     }
@@ -504,11 +507,18 @@ inoptr newfile(register inoptr pino, uint8_t *name)
     }
 
     if (!(nindex = i_open(pino->c_dev, 0))) {
+        /* TODO: Bug: i_open() already sets udata.u_error to the correct code
+         * (ENOSPC when no inodes are free, ENFILE when the inode table is full).
+         * Overriding it unconditionally with ENFILE masks the real error. */
         udata.u_error = ENFILE;
         goto nogood;
     }
 
     i_lock(pino);	/* Lock in tree order */
+    /* TODO: Bug: 'ino' is not a local variable in this function; the newly
+     * allocated inode is 'nindex'. Under CONFIG_BLOCK_SLEEP this is a compile
+     * error; without it the macro expands to nothing and hides the bug.
+     * This should be i_lock(nindex). */
     i_lock(ino);
     /* This does not implement BSD style "sticky" groups */
     nindex->c_node.i_uid = udata.u_euid;
@@ -754,6 +764,10 @@ void blk_free(uint16_t devno, blkno_t blk)
         if (buf) {
             /* nfree must directly preceed the blocks and without padding. That's
                the assumption UZI always had */
+            /* TODO: Bug: hardcoded literal 50 instead of FILESYS_TABSIZE.
+             * They are currently equal (FILESYS_TABSIZE == 50) so no runtime
+             * impact, but this will silently break if FILESYS_TABSIZE changes.
+             * Should be: sizeof(int) + FILESYS_TABSIZE * sizeof(blkno_t) */
             blkfromk(&dev->s_nfree, buf, 0, sizeof(int) + 50 * sizeof(blkno_t));
             bawrite(buf);
             dev->s_nfree = 0;
@@ -1036,6 +1050,11 @@ void freeblk(uint16_t dev, blkno_t blk, uint_fast8_t level, uint16_t nblock)
             if (j == nblock1)
                 b = nblock & 0xFF;
             blktok(&bn, buf, j * sizeof(blkno_t), sizeof(blkno_t));
+            /* TODO: Bug: blktok() copies exactly one blkno_t into bn, so bn
+             * points to a single element. The subsequent bn[j] dereference
+             * (which is *(bn + j)) reads out of bounds for all j > 0.
+             * This should be freeblk(dev, bn[0], level - 1, b) or
+             * freeblk(dev, *bn, level - 1, b). */
             freeblk(dev, bn[j], level - 1, b);
         }
         brelse(buf);
