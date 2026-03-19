@@ -9,9 +9,26 @@
 #include "globals.h"
 #include "printf.h"
 
-//the led that indicates power
-//The on board one is pin 25
+#if PICO_CYW43_SUPPORTED
+/* Temporarily unmangle FUZIX names so the CYW43 header compiles cleanly */
+#define MANGLED 0
+#include "mangle.h"
+#include "pico/cyw43_arch.h"
+#define MANGLED 1
+#include "mangle.h"
+#endif
+
+/*
+ * On standard Pico/Pico2 the power LED is GPIO 25.
+ * On Pico W / Pico 2W GPIO 25 is the CYW43 SPI clock – driving it as a
+ * plain GPIO output breaks the wireless chip.  The LED on W boards is
+ * controlled through the CYW43 chip via cyw43_arch_gpio_put().
+ */
+#if PICO_CYW43_SUPPORTED
+#define POWER_LED_IS_CYW43 1
+#else
 const uint POWER_LED = 25;
+#endif
 
 uint_fast8_t plt_param(char* p)
 {
@@ -108,10 +125,18 @@ int main(void)
     }
     ramsize = (SRAM_END - SRAM_BASE) / 1024;
     procmem = USERMEM / 1024;
-    //turn on power led
+    /* Turn on power LED */
+#if defined(POWER_LED_IS_CYW43)
+    /* On Pico W / Pico 2W the LED is wired through the CYW43 chip.
+     * cyw43_arch_init() must be called before cyw43_arch_gpio_put()
+     * is safe to use, and that happens inside netdev_init() which is
+     * called from device_init() → fuzix_main().  The LED is therefore
+     * lit there, not here.  Nothing to do at this point.             */
+#else
     gpio_init(POWER_LED);
     gpio_set_dir(POWER_LED, GPIO_OUT);
     gpio_put(POWER_LED, 1);
+#endif
 
     di();
     fuzix_main();

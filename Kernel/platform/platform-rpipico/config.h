@@ -33,8 +33,16 @@
 #undef CONFIG_IDUMP
 /* Enable to make ^A drop back into the monitor */
 #undef CONFIG_MONITOR
-/* Enable to support network stack */
+/* Enable to support network stack.
+ * CONFIG_NET_CYW43 is set by CMakeLists.txt when PICO_BOARD ends with _w
+ * (i.e. pico_w or pico2_w).  Do not set CONFIG_NET_NATIVE – that is for
+ * the user-space daemon approach used on other platforms.
+ */
+#if defined(CONFIG_NET_CYW43)
+#define CONFIG_NET
+#else
 #undef CONFIG_NET
+#endif
 #undef CONFIG_NET_NATIVE
 /* Profil syscall support (not yet complete) */
 #undef CONFIG_PROFIL
