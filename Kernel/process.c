@@ -263,12 +263,8 @@ ptptr getproc(void)
 				p->p_pptr);
 #endif
 			p = p->p_pptr;
-			/* TODO: Bug: intentional fallthrough to P_READY, but there is no
-			 * guarantee that the parent (p->p_pptr) is in a P_READY or
-			 * P_RUNNING state. The parent could be sleeping (P_SLEEP/P_IOWAIT),
-			 * in which case unconditionally setting p_status = P_RUNNING below
-			 * corrupts the scheduler state. Should check p->p_status before
-			 * switching to P_RUNNING. */
+			if (p->p_status != P_READY && p->p_status != P_RUNNING)
+				break;
 			/* fall through */
 		case P_READY:
 			/* If we are ready run us */
