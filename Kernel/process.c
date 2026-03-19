@@ -1036,12 +1036,7 @@ void NORETURN swapper(void)
 		irq = di();
 		if (swapin_proc) {
 			proc = swapin_proc;
-			/* TODO: Bug: 'HULL' is not a defined constant anywhere in
-			 * the codebase. This should be NULL. swapin_proc is a
-			 * 'struct p_tab *' pointer; assigning the undefined symbol
-			 * HULL is a compilation error (or silently wrong if a macro
-			 * happens to define it). Should be: swapin_proc = NULL; */
-			swapin_proc = HULL;
+			swapin_proc = NULL;
 			irqrestore(irq);
 			swapin(proc, proc->p_page2);
 		}
