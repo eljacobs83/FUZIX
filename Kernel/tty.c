@@ -641,10 +641,7 @@ int ptty_read(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t flag)
 
 int ptty_ioctl(uint_fast8_t minor, uint16_t request, char *data)
 {
-	/* TODO: Bug: passes undefined variables rawflag and flag instead of the
-	 * actual parameters request and data. Should be:
-	 * return tty_ioctl(minor + PTY_OFFSET, request, data); */
-	return tty_ioctl(minor + PTY_OFFSET, rawflag, flag);
+	return tty_ioctl(minor + PTY_OFFSET, request, data);
 }
 
 int pty_open(uint_fast8_t minor, uint16_t flag)
@@ -662,18 +659,14 @@ int pty_close(uint_fast8_t minor)
 {
 	ptyusers[minor]--;
 	if (ptyusers[minor] == 0)
-		tty_carrider_drop(minor + PTY_OFFSET); /* TODO: Bug: typo - should be tty_carrier_drop() */
+		tty_carrier_drop(minor + PTY_OFFSET);
 	return tty_close(minor + PTY_OFFSET);
 }
 
 int pty_write(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t flag)
 {
-	/* TODO: Bug: nwritten is uninitialized; the while loop uses it before it
-	 * is set, causing undefined behavior on the first iteration. Should be:
-	 * uint16_t nwritten = 0; */
-	uint16_t nwritten;
-	/* TODO: Bug: c is used below but never declared in this function.
-	 * Should add: uint8_t c; */
+	uint16_t nwritten = 0;
+	uint8_t c;
 	minor += PTY_OFFSET;
 
 	while (nwritten < udata.u_count) {
@@ -698,8 +691,7 @@ int pty_read(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t flag)
 {
 	struct s_queue q = &ttyinq[minor + PTY_OFFSET + PTY_PAIR];
 	char c;
-	/* TODO: Bug: nread is used in the while loop but never declared or
-	 * initialized in this function. Should add: uint16_t nread = 0; */
+	uint16_t nread = 0;
 
 	while (nread < udata.u_count) {
 		if (remq(q, &c)) {
@@ -719,10 +711,7 @@ int pty_read(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t flag)
 
 int pty_ioctl(uint_fast8_t minor, uint16_t request, char *data)
 {
-	/* TODO: Bug: passes undefined variables rawflag and flag instead of the
-	 * actual parameters request and data. Should be:
-	 * return tty_ioctl(minor + PTY_OFFSET, request, data); */
-	return tty_ioctl(minor + PTY_OFFSET, rawflag, flag);
+	return tty_ioctl(minor + PTY_OFFSET, request, data);
 }
 
 void pty_putc_wait(uint_fast8_t minor, char c)
