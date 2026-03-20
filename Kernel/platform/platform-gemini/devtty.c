@@ -247,5 +247,6 @@ void tty_poll(void)
 	r = vidstat;
 	if (r & 0x80) {
 		tty_inproc(2, viddata);
-#endif		
+	}
+#endif
 }
