@@ -140,7 +140,7 @@ void tty_setup(uint8_t minor, uint8_t flags)
 
     used(flags);
 
-    out(r, baudbits[baud] | (t->c_cflag & CSTOPB) ? 0 : 0x80);
+    out(r, baudbits[baud] | ((t->c_cflag & CSTOPB) ? 0 : 0x80));
     if (baud <= B9600)
         out(r + 2, 0x8);
     else

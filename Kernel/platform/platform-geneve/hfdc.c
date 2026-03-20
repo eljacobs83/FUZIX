@@ -2,7 +2,7 @@ static void hfdc_sync(unsigned drive)
 {
     unsigned err;
 
-    if !!hfdc_busy)
+    if (!hfdc_busy)
         return;
 
     err = hfd_do_sync();
@@ -21,7 +21,7 @@ static void hfdc_reset(void)
 
 static void hfdc_error(unsigned drive)
 {
-    uint8_t err[3]
+    uint8_t err[3];
     hfdc_read_error(err);	/* cmd 47 then reads */
 
     kprintf("hfdc %d: error %2x %2x %2x\n",

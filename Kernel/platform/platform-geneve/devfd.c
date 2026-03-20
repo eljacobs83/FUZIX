@@ -178,13 +178,14 @@ static int fd_transfer(uint_fast8_t minor, bool is_read,
 	uint8_t *p;
 	unsigned cyl;
 	unsigned retry = 0;
+	uint16_t ct = 0;
 
 	if (rawflag == 2)	/* No floppy swappy */
 		goto bad;
 
 	hfdc_sync();
 
-	if (fd_select(minor, (dp->featurs & FDC_HD)))
+	if (fd_select(minor, (dp->features & FDC_HD)))
 		goto bad;
 
 	if (rawflag) {
@@ -212,7 +213,7 @@ static int fd_transfer(uint_fast8_t minor, bool is_read,
 		p++;
 		cyl = udata.u_block / dp->sectors;
 
-		if (dp->heads = 2) {
+		if (dp->heads == 2) {
 			*p++ = (cyl & 1) | dp->headr;	/* sector size dependent */
 			cyl >>= 1;
 		} else
@@ -294,7 +295,7 @@ static void fd_setup(uint_fast8_t minor, uint_fast8_t step)
 		dp->mode &= 7;
 	else
 		dp->mode = step;
-	if (!(dp->features & (FDF_DD|FDFHD)))
+	if (!(dp->features & (FDF_DD|FDF_HD)))
 		dp->mode |= 0x10;	/* FM */
 }
 

@@ -20,7 +20,7 @@ void hd_transfer_sector256(void)
     uint8_t *p;
 
     /* Sync the controller */
-    hd_select(drive. 0);
+    hd_select(drive, 0);
 
     /* User data to the cache */
     if (blk_op.is_read == 0)

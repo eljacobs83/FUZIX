@@ -8,7 +8,7 @@ int lpr_open(uint_fast8_t minor, uint16_t flag)
 {
     if (minor) {
     	udata.u_error = ENODEV;
-    	return 1;
+    	return -1;
     }
     return 0;
 }
