@@ -93,6 +93,9 @@ int sd_xfer(uint_fast8_t dev, bool is_read, uint32_t lba, uint8_t * dptr)
 		sd_spi_tx_byte(0xFF);
 		if ((sd_spi_wait(false) & 0x1F) != 0x05)
 			goto error;
+		/* TODO: Bug: no timeout — if the SD card never sends a non-zero
+		 * byte after a write (e.g. due to card failure), this spins
+		 * forever and hangs the kernel. Should add a retry counter. */
 		while (sd_spi_rx_byte() == 0x00);
 	}
 	sd_spi_raise_cs();
