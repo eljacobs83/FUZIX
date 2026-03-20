@@ -553,6 +553,10 @@ bool uninsq(struct s_queue *qp, uint_fast8_t *cp)
 /* Returns true if the queue has more characters than its wakeup number */
 bool fullq(struct s_queue *q)
 {
+	/* TODO: Bug: should be >= not >. The queue is "full" (at threshold)
+	 * when q_count reaches q_wakeup, not only after exceeding it.
+	 * Using > lets one extra character past the threshold before blocking,
+	 * which can overflow fixed-size queues and delay flow-control signals. */
     if (q->q_count > q->q_wakeup) // WRS: shouldn't this be >= ?
         return true;
     else

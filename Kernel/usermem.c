@@ -60,7 +60,7 @@ uint16_t ugetw(const void *user)
 	if (!valaddr_r(user, 2))
 		return -1;
 #ifdef MISALIGNED
-	if (MISALIGNED(user, 2)) }
+	if (MISALIGNED(user, 2)) {
 		ssig(udata.u_proc, SIGBUS);
 		return -1;
 	}
@@ -88,7 +88,7 @@ int uputw(uint16_t value, void *user)
 	if (!valaddr_w(user, 2))
 		return -1;
 #ifdef MISALIGNED
-	if (MISALIGNED(user, 2)) }
+	if (MISALIGNED(user, 2)) {
 		ssig(udata.u_proc, SIGBUS);
 		return -1;
 	}

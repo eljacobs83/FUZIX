@@ -148,6 +148,7 @@ arg_t _execve(void)
 		goto nogood3;
 
 #ifdef CONFIG_PLATFORM_UDMA
+	/* TODO: Bug: p is not declared in this function; should be udata.u_ptab */
 	plt_udma_kill(p);
 #endif
 	/* Core dump and ptrace permission logic */
