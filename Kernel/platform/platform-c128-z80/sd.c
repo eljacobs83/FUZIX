@@ -38,7 +38,7 @@ void sd_spi_clock(bool go_fast) __z88dk_fastcall
   if (go_fast)
       sd_ctrl |= 0x04;
   else
-      sd_ctrl &= 0xF7;
+      sd_ctrl &= 0xFB;
 }
 
 void sd_spi_transmit_byte(uint8_t byte) __z88dk_fastcall

@@ -41,7 +41,7 @@ int ramdisk_transfer(bool is_read, uint8_t minor, uint8_t rawflag)
 
     block = udata.u_block;
 
-    if(block > (2 * 1024 * 2)){ /* > 2MB? */
+    if(block >= (2 * 1024 * 2)){ /* >= 2MB? */
         udata.u_error = EIO;
         return -1;
     }

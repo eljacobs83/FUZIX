@@ -291,7 +291,7 @@ int eth_write(uint8_t minor, uint8_t rawflag, uint8_t flag)
 	/* Permit read polling to resume if active */
 	enowait--;
 
-	return len;
+	return udata.u_count;
 }
 
 /*

@@ -147,6 +147,7 @@ static void acia_setup(uint8_t minor)
 		break;
 	case CS7|PARENB|CSTOPB:
 		r = 0x82;
+		break;
 	case CS7|PARENB|PARODD|CSTOPB:
 		r = 0x86;
 	case CS8|CSTOPB:
@@ -1155,7 +1156,7 @@ static void xrsc_setup(uint8_t minor, uint8_t exar)
 	uint8_t p = ttyport[minor];
 	uint8_t b = p & 0xF0;	/* Base of card */
 	uint8_t baud = t->c_cflag & CBAUD;
-	uint8_t r;
+	uint8_t r = 0;
 
 	if (!(t->c_cflag & PARENB))
 		r = 0x10;	/* No parity */
@@ -1324,7 +1325,7 @@ int vtzx_ioctl(uint8_t minor, uarg_t arg, char *ptr)
 	/* Only the ZX keyboard has support for the bitmapped matrix ops
 	   and map setting. We need to add different map setting for PS/2
 	   and different auto repeat if we support setting it */
-	if (!zxkey_present && (arg == KBMAPSIZE && arg == KBMAPGET
+	if (!zxkey_present && (arg == KBMAPSIZE || arg == KBMAPGET
 		|| arg == KBSETTRANS ||	arg == KBRATE ))
 		return -1;
 	return vt_ioctl(minor, arg, ptr);

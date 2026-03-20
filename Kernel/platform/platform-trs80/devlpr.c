@@ -33,6 +33,7 @@ int lpr_write(uint8_t minor, uint8_t rawflag, uint8_t flag)
         }
         /* FIXME: tidy up ugetc and sysio checks globally */
         lpdata = ugetc(p++);
+        c--;
     }
-    return (-1);
+    return udata.u_count;
 }
