@@ -258,12 +258,6 @@ arg_t _link(void)
 	return 0;
 
 nogoodl:
-	/* TODO: Bug: i_unlock(ino) is called here but ino was never locked.
-	 * n_open() does not lock the returned inode; only parent2 was locked
-	 * (and already released via i_unlock_deref before the goto nogoodl).
-	 * Calling i_unlock on an unlocked inode triggers the i_islocked()
-	 * assertion and corrupts lock state. Should be removed. */
-	i_unlock(ino);
 nogood:
 	i_deref(ino);
 	return -1;
@@ -314,10 +308,7 @@ arg_t _fcntl(void)
 			return (-1);
 		udata.u_files[newd] = udata.u_files[fd];
 		++of_tab[udata.u_files[fd]].o_refs;
-		/* TODO: Bug: returns 0 instead of the new file descriptor.
-		 * POSIX requires F_DUPFD to return the allocated fd number.
-		 * Should be: return newd; */
-		return 0;
+		return newd;
 	default:
 		udata.u_error = EINVAL;
 		return -1;
