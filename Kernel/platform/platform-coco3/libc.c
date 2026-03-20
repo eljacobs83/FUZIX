@@ -3,11 +3,15 @@
 
 int strcmp(const char *a, const char *b)
 {
-	/* TODO: Bug: using strlen(a) means if b is longer than a (b starts
-	 * with a as a prefix), strncmp returns 0 (equal) when it should be
-	 * negative. e.g. strcmp("abc","abcd") returns 0 instead of <0.
-	 * Fix: compare until a char differs or both reach NUL. */
-	return strncmp(a, b, strlen(a));
+	int ret;
+	while (*a || *b) {
+		ret = (unsigned char)*a - (unsigned char)*b;
+		if (ret)
+			return ret;
+		a++;
+		b++;
+	}
+	return 0;
 }
 
 int strncmp(const char *a, const char *b, int n)

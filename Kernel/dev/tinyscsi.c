@@ -54,27 +54,23 @@ int scsi_sense(uint_fast8_t dev, uint8_t *buf)
 int scsi_xfer(uint_fast8_t dev, bool is_read, uint32_t lba, uint8_t * dptr)
 {
   uint8_t buf[16];
+  uint8_t *cmd;
   /* Only use the 10 byte command if needed, older drives don't know it */
   if (lba > 0xFFFFF) {
-      /* TODO: Bug: opcode is 0x2A (WRITE10) for both read and write;
-       * READ10 is 0x28. Should be: is_read ? 0x28 : 0x2A */
-      cmd_rw10[0] = is_read ? 0x2A : 0x2A; /* READ/WRITE EXTENDED */
+      cmd_rw10[0] = is_read ? 0x28 : 0x2A; /* READ10/WRITE10 EXTENDED */
       cmd_rw10[2] = lba >> 24;
       cmd_rw10[3] = lba >> 16;
       cmd_rw10[4] = lba >> 8;
       cmd_rw10[5] = lba;
-      /* TODO: Bug: returns 1 here without calling scsi_cmd(), so the
-       * command is built but never executed for LBA > 0xFFFFF. Should
-       * fall through to the scsi_cmd() call below (after adjusting it
-       * to use cmd_rw10 for large LBAs). */
-      return 1;
+      cmd = cmd_rw10;
   } else {
     cmd_rw[0] = is_read ? 0x08 : 0x0A;	/* READ6/WRITE6 */
     cmd_rw[1] = lba >> 16;
     cmd_rw[2] = lba >> 8;
     cmd_rw[3] = lba;
+    cmd = cmd_rw;
   }
-  if (scsi_cmd(dev, cmd_rw, dptr, 512))
+  if (scsi_cmd(dev, cmd, dptr, 512))
     return 0;
   if (scsi_status[0] & 0x02) {
       if (scsi_sense(dev, buf))

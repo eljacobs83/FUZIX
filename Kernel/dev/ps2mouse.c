@@ -123,10 +123,6 @@ static void ps2mouse_event(void)
     static uint8_t event[4];
     /* Event code and button bits */
     event[0] = MOUSE_REL;
-    /* TODO: Bug: button bits written to event[1] here are immediately
-     * overwritten on the next line, so they are silently lost.
-     * Buttons from packet[0] & 7 need to go in a different field. */
-    event[1] = packet[0] & 7;
     event[1] = packet[1] >> 1;	/* Scale down and add sign */
     if (packet[0] & 0x10)
         event[1] |= 0x80;
@@ -135,7 +131,7 @@ static void ps2mouse_event(void)
     event[2] = packet[2] >> 1;
     if (packet[0] & 0x20)
         event[2] |= 0x80;
-    event[3] = packet[3] << 5;	/* Only 3 bits are used so scale up */
+    event[3] = (packet[0] & 7) | (packet[3] << 5);	/* Buttons and scroll */
     /* These bits may have other stuff in them on a non 5 button protocol
        mouse so we check the type */
     if (fivebutton)

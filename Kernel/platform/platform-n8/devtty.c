@@ -294,7 +294,7 @@ static void vdp_udgsave(void)
 	unsigned uaddr = 0x1400;	/* Char 128-159 */
 	unsigned addr = 0x3800 + 256 * (inputtty - 1);
 	for (i = 0; i < 256; i++)
-		vdp_writeb(addr, vdp_readb(uaddr++));
+		vdp_writeb(addr++, vdp_readb(uaddr++));
 	irqrestore(irq);
 }
 

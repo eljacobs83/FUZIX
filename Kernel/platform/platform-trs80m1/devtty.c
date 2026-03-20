@@ -244,7 +244,7 @@ void tty_setup(uint8_t minor, uint8_t flags)
 	if (t->termios.c_cflag & CRTSCTS)
 		trs_flow |= (1 << minor);
 	else
-		trs_flow &- ~(1 << minor);
+		trs_flow &= ~(1 << minor);
 	if (minor == 3) {
 		tr1865_ctrl_save = ctrl;
 		tr1865_ctrl = ctrl;
