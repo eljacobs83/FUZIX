@@ -195,7 +195,7 @@ void tty_setup(uint8_t minor, uint8_t flags)
 	uint8_t base = (minor - 1) * 0x10;
 	uint8_t table = baudsrc[baud];
 
-	static uint8_t oldbaud[3] = {0., B38400, B38400 };
+	static uint8_t oldbaud[3] = {0, B38400, B38400 };
 	static uint8_t oldbrg;
 
 	/* If both ports are open we need to check the baud rate pair is
