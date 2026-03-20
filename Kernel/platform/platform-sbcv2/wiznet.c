@@ -95,7 +95,7 @@ void w5x00_writecb(uint16_t off, uint8_t n)
 
 void w5x00_writesb(uint8_t sock, uint16_t off, uint8_t n)
 {
-	return w5x00_writecb((sock << 8) + off, n);
+	w5x00_writecb((sock << 8) + off, n);
 }
 
 void w5x00_writecw(uint16_t off, uint16_t n)
@@ -110,7 +110,7 @@ void w5x00_writecw(uint16_t off, uint16_t n)
 
 void w5x00_writesw(uint8_t sock, uint16_t off, uint16_t n)
 {
-	return w5x00_writecw((sock << 8) + off, n);
+	w5x00_writecw((sock << 8) + off, n);
 }
 
 void w5x00_bwrite(uint16_t bank, uint16_t off, void *pv, uint16_t n)
