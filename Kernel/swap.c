@@ -207,10 +207,9 @@ void swapper2(register ptptr p, uint16_t map)
  */
 void swapper(register ptptr p)
 {
-        uint16_t map = p->p_page2;
 	pagemap_alloc(p);	/* May cause a swapout. May also destroy
                                    the old value of p->page2 */
-	swapper2(p, map);
+	swapper2(p, p->p_page2);
 }
 
 #endif

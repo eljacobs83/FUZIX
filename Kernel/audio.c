@@ -31,7 +31,7 @@ int audio_ioctl(uarg_t op, void *val)
     case AUDIOC_PLAY:
       if (uget(val, &sound, sizeof(sound)) == -1)
         return -1;
-      if (sound.channel > audio_info.channels) {
+      if (sound.channel >= audio_info.channels) {
         udata.u_error = ERANGE;
         return -1;
       }
