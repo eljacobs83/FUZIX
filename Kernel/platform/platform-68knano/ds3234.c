@@ -19,6 +19,7 @@ uint_fast8_t ds3234_reg_read(uint_fast8_t r)
     ds3234_write(r);
     r = ds3234_read();
     ds3234_select(0);
+    return r;
 }
 
 /*

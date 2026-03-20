@@ -56,8 +56,8 @@ void tty_data_consumed(uint_fast8_t minor)
 void kputchar(uint_fast8_t c)
 {
 	if (c == '\n')
-		kputchar('\r');
-	kputchar(c);
+		tty_putc(1, '\r');
+	tty_putc(1, c);
 }
 
 /* TODO: switch to scancode mode */

@@ -115,8 +115,7 @@ static int hawk_transfer(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t 
        conveniently means we can just ram the value into the controller */
     hawk_unit(minor);
     while (udata.u_count) {
-        tries = 0;
-        while (tries-- < 5) {
+        for (tries = 0; tries < 5; tries++) {
             if (hawk_seek(udata.u_block) == -1)
                 continue;
             /* Sectors we can do this run */
@@ -129,7 +128,7 @@ static int hawk_transfer(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t 
                 break;
             }
         }
-        if (tries == 0) {
+        if (tries == 5) {
             kputs("hawk: I/O error.\n");
             break;
         }

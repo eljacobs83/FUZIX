@@ -76,7 +76,7 @@ int lpr_ioctl(uint_fast8_t minor, uarg_t arg, char *ptr)
 		if (s & 0x08)
 			r |= LP_BUSY;
 		if (s & 0x10)
-			r = LP_ACK;
+			r |= LP_ACK;
 		return r;
 	}
 	return -1;
