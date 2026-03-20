@@ -123,6 +123,9 @@ static void ps2mouse_event(void)
     static uint8_t event[4];
     /* Event code and button bits */
     event[0] = MOUSE_REL;
+    /* TODO: Bug: button bits written to event[1] here are immediately
+     * overwritten on the next line, so they are silently lost.
+     * Buttons from packet[0] & 7 need to go in a different field. */
     event[1] = packet[0] & 7;
     event[1] = packet[1] >> 1;	/* Scale down and add sign */
     if (packet[0] & 0x10)

@@ -240,7 +240,7 @@ int xtkbd_init(void)
 	
 	xtkbd_reset();
 	timeout = set_timer_sec(3);
-	while (timer_expired(timeout)) {
+	while (!timer_expired(timeout)) {
 		irq = di();
 		code = xtkbd_read();
 		irqrestore(irq);

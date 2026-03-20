@@ -178,7 +178,7 @@ static void keycode(uint_fast8_t code, uint_fast8_t up, uint_fast8_t shifted)
         else if (code == LCTRL)
             ctrl_down &= ~1;
         else if (code == RCTRL)
-            ctrl_down |= ~2;
+            ctrl_down &= ~2;
         else if (code == LALT)
             alt_down &= ~1;
         else if (code == RALT)

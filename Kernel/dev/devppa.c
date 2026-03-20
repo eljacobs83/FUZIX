@@ -36,7 +36,7 @@ static void ppa_c_pulse(uint8_t v)
 	ppa_write_ctrl(0x0C);
 }
 
-static static void ppa_connect(void)
+static void ppa_connect(void)
 {
 	ppa_c_pulse(0);
 	ppa_c_pulse(0x3C);
