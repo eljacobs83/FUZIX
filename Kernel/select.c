@@ -52,47 +52,27 @@ void selwake(struct selmap *s)
 }
 
 /* Set our select bits on the inode */
-/* TODO: Bug: mask and bit are swapped as array index vs bitmask throughout
- * this function, and bset is computed incorrectly.
- *
- * 'mask' is a bitmask (1<<(bit&7): values 1,2,4,...,128) and should be used
- * with bitwise AND/OR/NOT operators, NOT as an array index.
- * 'bit' after '>>= 3' is a byte index (0-7) and should be used as the array
- * index into s->map[], NOT as a bitmask.
- *
- * Additionally, 'bset = bit & setit' uses the raw process index before the
- * shift; setit is 0 or 1, so this yields 0 or (bit&1), neither of which is
- * the intended "set this process's bit". It should be: bset = setit ? mask : 0
- *
- * All six s->map[mask] accesses are out-of-bounds when mask > ARRAY_SIZE-1.
- *
- * Fix:
- *   uint_fast8_t bset = setit ? mask : 0;   // BEFORE bit >>= 3
- *   bit >>= 3;
- *   s->map[bit] &= ~mask;
- *   s->map[bit] |= bset;
- */
 void selwait_inode(inoptr i, uint_fast8_t smask, uint_fast8_t setit)
 {
 	struct selmap *s = (struct selmap *) (&i->c_node.i_addr[17]);
 	uint_fast8_t bit = udata.u_ptab - ptab;
 	uint_fast8_t mask = 1 << (bit & 7);
-	uint_fast8_t bset = bit & setit;
+	uint_fast8_t bset = setit ? mask : 0;
 	bit >>= 3;
 
 	if (smask & SELECT_IN) {
-		s->map[mask] &= ~bit;
-		s->map[mask] |= bset;
+		s->map[bit] &= ~mask;
+		s->map[bit] |= bset;
 	}
 	s++;
 	if (smask & SELECT_OUT) {
-		s->map[mask] &= ~bit;
-		s->map[mask] |= bset;
+		s->map[bit] &= ~mask;
+		s->map[bit] |= bset;
 	}
 	s++;
 	if (smask & SELECT_EX) {
-		s->map[mask] &= ~bit;
-		s->map[mask] |= bset;
+		s->map[bit] &= ~mask;
+		s->map[bit] |= bset;
 	}
 }
 
