@@ -115,6 +115,7 @@ void tty_setup(uint_fast8_t minor, uint_fast8_t flags)
 			break;
 		case CS7|PARENB|CSTOPB:
 			r = 0x82;
+			break;
 		case CS7|PARENB|PARODD|CSTOPB:
 			r = 0x86;
 		case CS8|CSTOPB:
@@ -197,7 +198,7 @@ void tty_pollirq_sio0(void)
 		if ((cb & 4) && (sleeping & 8)) {
 			tty_outproc(3);
 			sleeping &= ~8;
-			out(SIOB_C, 5 << 30);	// reg 0 CMD 5 - reset transmit interrupt pending
+			out(SIOB_C, 5 << 3);	// reg 0 CMD 5 - reset transmit interrupt pending
 		}
 		if ((cb ^ old_cb) & 8) {
 			if (cb & 8)

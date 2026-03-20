@@ -12,7 +12,6 @@ uint8_t need_resched = 0;
 
 void plt_discard(void)
 {
-	return;
 	while (bufpool_end < (struct blkbuf *) (KERNTOP - sizeof(struct blkbuf))) {
 		memset(bufpool_end, 0, sizeof(struct blkbuf));
 #if BF_FREE != 0
