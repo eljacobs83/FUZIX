@@ -48,7 +48,7 @@ static uint8_t xtkb_scan[] = {
 };
 
 static uint8_t xtkb_scan_shifted[] = {
-	0, 033, '!', '"', '£', '$', '%', '^',
+	0, 033, '!', '"', 'ï¿½', '$', '%', '^',
 	'&', '*', '(', ')', '_', '+', '\b', '\t',
 	'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I',
 	'O', 'P', '{', '}', KEY_ENTER, /* lctrl */0x82, 'A', 'S',
@@ -153,11 +153,10 @@ void xt_keyboard_irq(int irq)
 {
 	static uint8_t e0_prefix;
 	static unsigned int kbd_state = 0;
-	uint8_t E0;
+	uint8_t E0 = 0;
 	uint8_t key_up;
 	uint8_t code;
 	uint8_t mode;
-	uint8_t E0 = 0;
 	uint8_t keyp;
 
 	code = inb_p((void *) KBD_IO);
@@ -174,7 +173,7 @@ void xt_keyboard_irq(int irq)
 		e0_prefix = 1;
 		return;
 	}
-	e0 = e0_prefix;
+	E0 = e0_prefix;
 	e0_prefix = 0;
 
 	/* On an error we cross our fingers */
@@ -187,9 +186,9 @@ void xt_keyboard_irq(int irq)
 	/* Track all the key up and down bits for the FUZIX raw keymap
 	   interface. Probably nobody on x86 will use it but it's cheap */
 	if (key_up == 0)
-		key_map[code >> 3] |= 1 << (code & 7);
+		keymap[code >> 3] |= 1 << (code & 7);
 	else
-		key_map[code >> 3] &= ~(1 << (code & 7));
+		keymap[code >> 3] &= ~(1 << (code & 7));
 
 	/* Work out what table to use */
 	/* FIXME: check for over the end of the table ?? */
@@ -202,7 +201,7 @@ void xt_keyboard_irq(int irq)
 			mode = ALT_GR;
 #endif
 		if (key_up)
-			kbd_state ~= ~mode;
+			kbd_state &= ~mode;
 		else
 			kbd_state |= mode;
 		return;
@@ -214,7 +213,7 @@ void xt_keyboard_irq(int irq)
 	case 0x40:		/* F1 .. F10 */
 		/* Handle Function keys  */
 		code -= 0x38;
-		if (kbd_mode & ALT) {
+		if (kbd_state & ALT) {
 			console_switch(code);
 			return;
 		}
@@ -234,32 +233,32 @@ void xt_keyboard_irq(int irq)
 	}
 
 	/* Handle CTRL-ALT-DEL  */
-/*	if (code == 0x53 && (kbd_mode & CTRL) && (kbd_mode & ALT))
+/*	if (code == 0x53 && (kbd_state & CTRL) && (kbd_state & ALT))
 		ctrl_alt_del(); */
 
 	/*
 	 *      Pick the right keymap
 	 */
 
-	mode = ((kbd_mode & ~(NUM | ALT_GR)) >> 1) | (kbd_mode & 0x01);
+	mode = ((kbd_state & ~(NUM | ALT_GR)) >> 1) | (kbd_state & 0x01);
 	mode = state_code[mode];
 
-	if (!mode && (kbd_mode & ALT_GR))
+	if (!mode && (kbd_state & ALT_GR))
 		mode = 3;
 	keyp = *(scan_tabs[mode] + code);
 
-	if ((kbd_mode & CTRL) && code < 14 && !(kbd_mode & ALT))
+	if ((kbd_state & CTRL) && code < 14 && !(kbd_state & ALT))
 		keyp = xtkb_scan_shifted[code];
-	if (code < 70 && (kbd_mode & NUM))
+	if (code < 70 && (kbd_state & NUM))
 		keyp = xtkb_scan_shifted[code];
 	/*
 	 *      Apply special modifiers. Needs looking at more
 	 */
-	if ((kbd_mode & ALT && !(kbd_mode & CTRL))	/* Changed to support CTRL-ALT */
+	if ((kbd_state & ALT && !(kbd_state & CTRL))	/* Changed to support CTRL-ALT */
 		keyp |= 0x80;	/* META-.. */
 	if (!keyp)	/* non meta-@ is 64 */
 		keyp = '@';
-	if (kbd_mode & CTRL && !(kbd_mode & ALT))	/* Changed to support CTRL-ALT */
+	if (kbd_state & CTRL && !(kbd_state & ALT))	/* Changed to support CTRL-ALT */
 		keyp &= 0x1F;			/* CTRL-.. */
 	if (keyp == '\r')
 		keyp = '\n';

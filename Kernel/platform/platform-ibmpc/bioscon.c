@@ -55,7 +55,7 @@ void clear_lines(int8_t y, int8_t ct)
     if (ct == 25)
         bios_clearscreen();
     else {
-        for(i = 0; i < ct; y++) {
+        for(i = 0; i < ct; i++) {
             bios_setcursor((y + i) << 8, 0);
             bios_setchar(' ', 7, vt_width);
         }

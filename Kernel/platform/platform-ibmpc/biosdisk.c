@@ -198,6 +198,8 @@ void biosdisk_init(void)
         if (bits == 0xFFFF)
             continue;
         nhd--;
+        dx = bits >> 16;
+        cx = bits;
         p->heads = dx >> 8;
         p->cyls = cx >> 8;
         p->secs = cx & 0x3F;

@@ -11,6 +11,8 @@
 static int hd_transfer(bool is_read, uint8_t rawflag)
 {
     blkno_t block;
+    /* TODO: Bug: block_xfer and block are uninitialized; this is stub
+     * code that has never been implemented (see FIXME below). */
     int block_xfer;
     uint16_t dptr;
     int dlen;
