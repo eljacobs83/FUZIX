@@ -60,15 +60,15 @@ static void buddy_unpin(uint16_t node)
 
 /* Free a block and propogate both free and ownership information updates */
 static uint8_t buddy_free(uint16_t node, uint8_t sizeshift)
-{	
+{
 	uint16_t n = 1 << sizeshift;	/* How many blocks to free */
 	uint16_t i;
 
-	node <<= depth;		/* Turn our node into the leftmost base node of
+	node <<= sizeshift;	/* Turn our node into the leftmost base node of
 				   the level we need */
 	/* Unpin all our blocks from the bottom up */
 	for (i = 0; i < n; i++)
-		buddy_upin(node++);
+		buddy_unpin(node++);
 	inuse -= n;
 }
 
@@ -77,9 +77,9 @@ static int16_t buddy_alloc(uint8_t sizeshift, uint8_t owner)
 {
 	/* There are n slots at offset n: isn't that neat */
 
+	uint16_t n = BUDDY_SIZE >> sizeshift;
 	uint16_t ct = n;
 	uint16_t node = n;
-	uint16_t n = BUDDY_SIZE >> sizeshift;
 
 	while(ct--) {
 		if (buddy[node] == NODE_FREE) {
@@ -87,7 +87,7 @@ static int16_t buddy_alloc(uint8_t sizeshift, uint8_t owner)
 			 * */
 			node <<= sizeshift;
 			for (ct = 0; ct < n; ct++)
-				pin(node + ct, owner);
+				buddy_pin(node + ct, owner);
 			inuse += n;
 			return node;
 		}
@@ -117,12 +117,13 @@ uint8_t buddy_evict(uint16_t base, uint8_t sizeshift)
 
 static uint8_t *buddy_node2addr(uint16_t node)
 {
-	return buddy_ram + node << BUDDY_NODESHIFT;
+	return buddy_ram + (node << BUDDY_NODESHIFT);
 }
 
-static uint8_t buddy_addr2node(uint16_t *p)
+static uint16_t buddy_addr2node(uint8_t *p)
 {
 	size_t n = (p - buddy_ram) >> BUDDY_NODESHIFT;
+	return n;
 }
 
 /* There are faster ways to do this using ffs on some processors or and
@@ -148,7 +149,8 @@ void buddy_init(uint16_t start, uint16_t end)
 	/* It starts with everything owned by 0 */
 	while (start < end) {
 		total++;
-		buddy_upin(start);
+		buddy_unpin(start);
+		start++;
 	}
 	inuse = 0;
 }
@@ -177,7 +179,7 @@ void *kmalloc(size_t size, uint8_t owner)
 	int16_t node = buddy_alloc(buddy_sizetoshift(size), owner);
 	if (node < 0)
 		return NULL;
-	return buddy_node2addr(p);
+	return buddy_node2addr(node);
 }
 
 #if 0
@@ -201,4 +203,3 @@ usize_t valaddr(const char *pp, usize_t lw)
 
 #endif
 #endif
-
