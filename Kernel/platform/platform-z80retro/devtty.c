@@ -44,7 +44,7 @@ static const uint8_t sio_dmap[3] = {
 static void sio2_setup(uint8_t minor, uint8_t flags)
 {
 	struct termios *t = &ttydata[minor].termios;
-	uint8_t r;
+	uint8_t r = 0;
 
 	used(flags);
 

@@ -155,7 +155,7 @@ void tty_data_consumed(uint_fast8_t minor)
 
 ttyready_t tty_writeready(uint_fast8_t minor)
 {
-	uint8_t r;
+	uint8_t r = 0;
 	switch (minor) {
 	case 1:
 		r = ASCI_STAT0;
