@@ -200,5 +200,5 @@ int cpctty_ioctl(uint8_t minor, uarg_t arg, char *ptr)
 			return tty_ioctl(minor, arg, ptr);
 #endif
 		}
-			
+	return 0;
 }

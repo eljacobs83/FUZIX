@@ -57,7 +57,6 @@ void plt_interrupt(void)
 	/* Produce a 10Hz timer */
 	if (c == 4 || c == 7)
 		timer_interrupt();
-	timer_interrupt();
 }
 
 void do_beep(void)
