@@ -29,7 +29,7 @@ static uint8_t buf[0x89];
 static void fd_reset(uint8_t minor)
 {
     buf[0] = 0x00;
-    buf[1] = 0x30 + minor >> 1;
+    buf[1] = 0x30 + (minor >> 1);
     buf[2] = 0x23;
     buf[3] = 0x0D;
     buf[4] = 0x00;
@@ -79,7 +79,7 @@ int fd_transfer(uint8_t minor, bool is_read, uint8_t rawflag)
     /* Loop over each 128 byte chunk */
     while (ct < nblock) {
         buf[0] = 0x00;
-        buf[1] = 0x31 + minor >> 1; 	/* Which FDD ? */
+        buf[1] = 0x31 + (minor >> 1); 	/* Which FDD ? */
         buf[2] = 0x23;
         buf[6] = (block >> 6);		/* 64 logical sectors/track */
         buf[7] = (block & 63) + 1;	/* Sectors are 1 based */

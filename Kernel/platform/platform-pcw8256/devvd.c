@@ -56,7 +56,7 @@ void devvd_probe(void)
         if (devvd_open(i) == 0) {
             /* Check the DPB is ok */
             if (dpb[i].spt & 3) {
-                kprintf("vd%d: sectors/track unsuitable.\n");
+                kprintf("vd%d: sectors/track unsuitable.\n", i);
                 continue;
             }
             kprintf("%c: ", i + 'A');
