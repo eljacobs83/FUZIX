@@ -336,7 +336,7 @@ void ikbd_send(uint8_t *msg, uint8_t len)
 	while(1) {
 		if (ikbd_busy == 0) {
 			ikbd_busy = 1;
-			while(len) {
+			while(len--) {
 				while(*(volatile uint8_t *)IKBD_STATUS & 2);
 				*(volatile uint8_t *)IKBD_DATA = *msg++;
 			}

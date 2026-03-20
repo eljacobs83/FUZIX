@@ -178,7 +178,7 @@ void hd_install(uint8_t slot)
     } else {
         if (!(p[254] & 4))
             readonly |= (1 << slot);
-        block_units[slot] = (p[254] >> 4) & 3 + 1;
+        block_units[slot] = ((p[254] >> 4) & 3) + 1;
     }
     /* And at this point we ought to scan it for a swap signature */
 }

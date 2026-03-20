@@ -58,7 +58,7 @@ static void issue_read(void)
         x = *dev;
         if (x & XFERRQ) {
             *udata.u_dptr++ = dev[1];	/* Store byte */
-            ct++:
+            ct++;
         }
         /* An early done means an error */
         if (x & DONE)
@@ -78,14 +78,14 @@ static void issue_write(void)
     while(ct < 128) {
         x = *dev;
         if (x & 0x80) {		/* Failure */
-            dev[1] = *udata.u_dptr+;	/* Store byte */
-            ct++:
+            dev[1] = *udata.u_dptr++;	/* Store byte */
+            ct++;
         }
         if (x & DONE)
             break;		/* Error */
     }
     /* Error in xfer ? */
-    if (dev[0] & (1 << 15)))
+    if (dev[0] & (1 << 15))
         return dev[1];
     /* Now we have copied the buffer into the controller we issue an I/O */
     *dev = CMD_WRITE|GO|drive;	/* READ|GO|DRIVE_B etc */
@@ -132,7 +132,10 @@ static int rx_transfer(uint8_t minor, bool is_read, uint8_t rawflag)
         sector = (udata.u_block % 26) + 1;
         for (tries = 0; tries < 4 ; tries++) {
             ptr = udata.u_dptr;
-            err = (is_read ? issue_read : issue_write)(dev))
+            /* TODO: Bug: issue_read/issue_write are void and take no args;
+             * err= and (dev) are both wrong. The retry logic using err==0
+             * never works. Needs structural fix to return error status. */
+            (is_read ? issue_read : issue_write)();
             if (err == 0)
                 break;
             udata.u_dptr = ptr;

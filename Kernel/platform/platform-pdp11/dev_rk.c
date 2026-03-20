@@ -78,11 +78,11 @@ static int rk_transfer(bool is_read, uint8_t minor, uint8_t rawflag)
             cylinder -= 202;
             surface = 0x10;
         }
-        darv |= sector | surface
+        darv |= sector | surface;
         darv |= (cylinder << 5);
 
         /* Wait until ready */        
-        while(!(*rkcd & 0x80));
+        while(!(*rkcs & 0x80));
 
         /* Load the target, addresses and command */
         *rkda = darv;
@@ -90,7 +90,7 @@ static int rk_transfer(bool is_read, uint8_t minor, uint8_t rawflag)
         *rkba = udata.u_dptr;
         *rkcs = cmd | 1;	/* Needs top bits of VA when we do virtual */
 
-        while(!(*rkcd & 0x80));
+        while(!(*rkcs & 0x80));
 
         st = *rker;
         if (st) {
