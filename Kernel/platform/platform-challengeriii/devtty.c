@@ -85,8 +85,10 @@ void tty_setup(uint_fast8_t minor, uint_fast8_t flag)
 		break;
 	case CS7|PARENB|CSTOPB:
 		r = 0x82;
+		break;
 	case CS7|PARENB|PARODD|CSTOPB:
 		r = 0x86;
+		break;
 	case CS8|CSTOPB:
 		r = 0x92;
 		break;
