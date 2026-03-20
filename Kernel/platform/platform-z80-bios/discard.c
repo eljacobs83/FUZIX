@@ -104,6 +104,7 @@ void biostty_init(void)
 		n = NUM_DEV_TTY;
 	}
 	for (i = 1; i < n; i++) {
+		p = fuzixbios_serial_param(i);
 		/* Set the termios mask for the port */
 		*m++ = p->termios_mask | _CSYS;
 		/* Set the initial height and width */

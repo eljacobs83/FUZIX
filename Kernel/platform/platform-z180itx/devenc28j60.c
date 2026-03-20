@@ -32,7 +32,7 @@ static void enc_set_gpio(uint8_t m, uint8_t v)
 void enc_nap_1ms(void)
 {
     /* Wait 1ms : FIXME tune this */
-    volatile unsigned int n = 0;
+    volatile unsigned int n = 1000;
     while(--n);
 }
 

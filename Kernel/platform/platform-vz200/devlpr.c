@@ -48,5 +48,5 @@ int lpr_write(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t flag)
 		}
 		data = ugetc(p++);
 	}
-	return pe - p;
+	return udata.u_count;
 }
