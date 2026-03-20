@@ -66,5 +66,5 @@ int lpr_write(uint_fast8_t minor, uint_fast8_t rawflag, uint_fast8_t flag)
 			irqrestore(irq);
 		}
 	}
-	return pe - p;
+	return udata.u_count;
 }
