@@ -19,7 +19,7 @@ static uint8_t intct;
 void plt_idle(void)
 {
     irqflags_t irq = di();
-    if (!in_bios)
+    if (!in_bios) {
         poll_keyboard();
         if (++intct == 5) {
 	    timer_interrupt();
@@ -27,6 +27,7 @@ void plt_idle(void)
 	    if (inputwait)
 	        wakeup(&inputwait);
         }
+    }
     if (vblank_wait)
         wakeup(&vblank_wait);
     irqrestore(irq);

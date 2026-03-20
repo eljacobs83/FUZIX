@@ -90,8 +90,8 @@ int plt_rtc_read(void)
 	    y += 0x19F0;
         else
             y += 0x1990;
-	*p++ = y >> 8;
 	*p++ = y;
+	*p++ = y >> 8;
 	*p++ = rtc_buf[1];	/* month */
 	*p++ = rtc_buf[2];	/* day */
 	*p++ = rtc_buf[3];	/* Hour */

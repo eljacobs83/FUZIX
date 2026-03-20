@@ -78,9 +78,9 @@ struct s_queue ttyinq[NUM_DEV_TTY + 1] = {	/* ttyinq[0] is never used */
 	{tbuf2, tbuf2, tbuf2, TTYSIZ, 0, TTYSIZ / 2},
 	{tbuf3, tbuf3, tbuf3, TTYSIZ, 0, TTYSIZ / 2},
 	{tbuf4, tbuf4, tbuf4, TTYSIZ, 0, TTYSIZ / 2},
-	{tbuf5, tbuf3, tbuf3, TTYSIZ, 0, TTYSIZ / 2},
-	{tbuf6, tbuf4, tbuf4, TTYSIZ, 0, TTYSIZ / 2},
-	{tbuf7, tbuf3, tbuf3, TTYSIZ, 0, TTYSIZ / 2},
+	{tbuf5, tbuf5, tbuf5, TTYSIZ, 0, TTYSIZ / 2},
+	{tbuf6, tbuf6, tbuf6, TTYSIZ, 0, TTYSIZ / 2},
+	{tbuf7, tbuf7, tbuf7, TTYSIZ, 0, TTYSIZ / 2},
 };
 
 /*
@@ -337,7 +337,7 @@ void tty_setup(uint_fast8_t minor, uint_fast8_t flagbits)
 		ctc1 = dartbaud[cf & CBAUD];
 	} else {
 		ctc2 = 0x45;
-		ctc1 = dartbaud[cf & CBAUD];
+		ctc2 = dartbaud[cf & CBAUD];
 	}
 	flags = di();
 	for (i = 0; i < 10; i++) {
