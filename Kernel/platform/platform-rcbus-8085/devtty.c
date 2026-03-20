@@ -56,8 +56,10 @@ static void calc_acia_setup(void)
 		break;
 	case CS7 | PARENB | CSTOPB:
 		r = 0x82;
+		break;
 	case CS7 | PARENB | PARODD | CSTOPB:
 		r = 0x86;
+		break;
 	case CS8 | CSTOPB:
 		r = 0x92;
 		break;

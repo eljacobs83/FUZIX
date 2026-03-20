@@ -139,8 +139,10 @@ static void acia_setup(uint8_t minor)
 		break;
 	case CS7|PARENB|CSTOPB:
 		r = 0x82;
+		break;
 	case CS7|PARENB|PARODD|CSTOPB:
 		r = 0x86;
+		break;
 	case CS8|CSTOPB:
 		r = 0x92;
 		break;
