@@ -6,7 +6,6 @@ include(pico_sdk_import.cmake)
 project(fuzix C CXX ASM)
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_BUILD_TYPE Debug)
-set(PICO_COPY_TO_RAM 1)
 option(TOTALMEM "specify how much TOTALMEM is present" 0)
 option(WIFI_SSID     "WiFi SSID to connect at boot (optional)"     "")
 option(WIFI_PASSWORD "WiFi password (optional, empty = open)"       "")
@@ -17,6 +16,13 @@ if(PICO_BOARD MATCHES ".*_w$")
     message(STATUS "CYW43 wireless build enabled for board: ${PICO_BOARD}")
 else()
     set(FUZIX_CYW43_BUILD FALSE)
+endif()
+
+# Copy-to-RAM puts the entire image in SRAM which speeds execution but
+# consumes all available memory.  Wireless builds need the lwIP / CYW43
+# BSS pools in SRAM, so keep code in XIP flash instead.
+if(NOT FUZIX_CYW43_BUILD)
+    set(PICO_COPY_TO_RAM 1)
 endif()
 
 set(COMMON_DEFINITIONS
