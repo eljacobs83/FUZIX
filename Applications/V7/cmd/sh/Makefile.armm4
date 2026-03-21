@@ -25,7 +25,7 @@ $(FOBJS): fshbuild/%.o: %.c
 	$(CC) -c $(CFLAGS) $(COPT) -DBUILD_FSH $< -o $@
 
 sh: $(CRT0) $(OBJS)
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -34,7 +34,7 @@ else
 endif
 
 fsh: $(CRT0) $(FOBJS)
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin

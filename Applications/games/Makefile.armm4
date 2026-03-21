@@ -30,7 +30,7 @@ $(APPSFP): $(CRT0)
 $(APPSNS): $(CRT0NS)
 
 $(APPS) $(APPSNS): %: %.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin

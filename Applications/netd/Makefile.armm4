@@ -13,7 +13,7 @@ APPS = netd-eth netd-slip telnet echoping dig httpd ping ntpdate htget tinyirc i
 all: $(APPS)
 
 netd-slip: $(CRT0) netd.o uip.o uiplib.o timer.o clock-arch.o uip_arp.o slip.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -22,7 +22,7 @@ else
 endif
 
 netd-eth: $(CRT0) netd.o uip.o uiplib.o timer.o clock-arch.o uip_arp.o eth.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -31,7 +31,7 @@ else
 endif
 
 telnet: $(CRT0) telnet.o gethostbyname.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -40,7 +40,7 @@ else
 endif
 
 echoping: $(CRT0) echoping.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -49,7 +49,7 @@ else
 endif
 
 dig: $(CRT0) dig.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -58,7 +58,7 @@ else
 endif
 
 httpd: $(CRT0) httpd.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -67,7 +67,7 @@ else
 endif
 
 ping: $(CRT0) ping.o gethostbyname.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -76,7 +76,7 @@ else
 endif
 
 ntpdate: $(CRT0) ntpdate.o gethostbyname.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -85,7 +85,7 @@ else
 endif
 
 htget:	$(CRT0) htget.o gethostbyname.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -94,7 +94,7 @@ else
 endif
 
 tinyirc: $(CRT0) tinyirc.o linein.o gethostbyname.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -103,7 +103,7 @@ else
 endif
 
 ifconfig: $(CRT0) ifconfig.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin

@@ -25,11 +25,11 @@ $(FOBJS): fshbuild/%.o: %.c
 	$(CC) -c $(CFLAGS) $(COPT) -DBUILD_FSH $< -o $@
 
 sh: $(CRT0) $(OBJS)
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 	$(STRIP) -o $@ $(STRIP_OPT) $@.debug
 
 fsh: $(CRT0) $(FOBJS)
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 	$(STRIP) -o $@ $(STRIP_OPT) $@.debug
 
 size.report: $(APPS)

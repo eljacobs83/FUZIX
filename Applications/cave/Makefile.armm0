@@ -20,7 +20,7 @@ advgen: advgen.c
 	$(CC) $(CFLAGS) $(CCOPTS) -c $<
 
 advent: $(CRT0) $(OBJ)
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 	$(STRIP) $(STRIP_OPT) -o $@ $@.debug
 
 clean:

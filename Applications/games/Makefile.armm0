@@ -30,7 +30,7 @@ $(APPSFP): $(CRT0)
 $(APPSNS): $(CRT0NS)
 
 $(APPS) $(APPSNS): %: %.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 	$(STRIP) $(STRIP_OPT) -o $@ $@.debug
 
 $(APPSFP): %: %.o

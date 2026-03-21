@@ -11,7 +11,7 @@ OBJS = $(CSRCS:.c=.o)
 all: levee
 
 levee: $(OBJS) $(CRT0)
-	$(LINKER) -o levee.debug $(CRT0) $(OBJS) $(LINKER_OPT)
+	$(LINKER) -o levee.debug $(CRT0) $(OBJS) $(LINKER_OPT) $(LINKER_TAIL)
 	$(STRIP) $(STRIP_OPT) -o $@ $@.debug
 
 .c.o:
