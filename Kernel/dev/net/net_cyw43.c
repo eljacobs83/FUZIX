@@ -32,12 +32,14 @@
 #define MANGLED 0
 #include "mangle.h"
 
+#define ssize_t __ssize_t
 #include "pico/cyw43_arch.h"
 #include "lwip/tcp.h"
 #include "lwip/udp.h"
 #include "lwip/pbuf.h"
 #include "lwip/netif.h"
 #include "lwip/ip4_addr.h"
+#undef ssize_t
 
 #define MANGLED 1
 #include "mangle.h"
