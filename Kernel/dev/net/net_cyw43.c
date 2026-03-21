@@ -33,6 +33,7 @@
 #include "mangle.h"
 
 #define ssize_t __ssize_t
+#define time_t __time_t
 #include "pico/cyw43_arch.h"
 #include "lwip/tcp.h"
 #include "lwip/udp.h"
@@ -40,6 +41,7 @@
 #include "lwip/netif.h"
 #include "lwip/ip4_addr.h"
 #undef ssize_t
+#undef time_t
 
 #define MANGLED 1
 #include "mangle.h"
@@ -1230,11 +1232,11 @@ void netdev_init(void)
     cyw43_arch_enable_sta_mode();
     kputs("cyw43: WiFi ready\n");
 
-#if defined(WIFI_SSID) && (sizeof(WIFI_SSID) > 1)
+    if (WIFI_SSID[0] != '\0') {
     kprintf("cyw43: connecting to '%s'...\n", WIFI_SSID);
     if (cyw43_arch_wifi_connect_timeout_ms(
             WIFI_SSID,
-            (sizeof(WIFI_PASSWORD) > 1) ? WIFI_PASSWORD : NULL,
+            (WIFI_PASSWORD[0] != '\0') ? WIFI_PASSWORD : NULL,
             WIFI_AUTH,
             30000) == 0) {
         wifi_up = 1;
@@ -1242,7 +1244,7 @@ void netdev_init(void)
     } else {
         kputs("cyw43: connect failed (use SIOCWIFICONNECT to retry)\n");
     }
-#endif
+    }
 }
 
 #endif /* CONFIG_NET_CYW43 */
