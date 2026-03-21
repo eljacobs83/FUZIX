@@ -6,9 +6,9 @@ STRIP = arm-none-eabi-strip
 LINKER = arm-none-eabi-ld
 CFLAGS = -mcpu=Cortex-M0plus -ffunction-sections -fdata-sections -fno-strict-aliasing -fomit-frame-pointer -fno-builtin -Wall -g -Os -isystem $(FUZIX_ROOT)/Library/include
 CFLAGS += -Wno-int-conversion -Wno-implicit-int
-LINKER_OPT = -L$(FUZIX_ROOT)/Library/libs -lc$(PLATFORM) -pie -static -no-dynamic-linker -z max-page-size=4
+LINKER_OPT = -pie -static -no-dynamic-linker -z max-page-size=4 -T $(FUZIX_ROOT)/Library/elfexe32.ld --no-export-dynamic -Bstatic -no-dynamic-linker
 LIBGCCDIR = $(dir $(shell $(CC) $(CFLAGS) -print-libgcc-file-name))
-LINKER_OPT += -L$(LIBGCCDIR) -lgcc -T $(FUZIX_ROOT)/Library/elfexe32.ld --no-export-dynamic -Bstatic -no-dynamic-linker
+LINKER_TAIL = -L$(FUZIX_ROOT)/Library/libs -lc$(PLATFORM) -L$(LIBGCCDIR) -lgcc
 STRIP_OPT =
 CRT0 = $(FUZIX_ROOT)/Library/libs/crt0_$(PLATFORM).o
 CRT0NS = $(FUZIX_ROOT)/Library/libs/crt0nostdio_$(PLATFORM).o

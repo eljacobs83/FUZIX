@@ -7,9 +7,9 @@ LINKER = arm-none-eabi-ld
 CFLAGS = -mcpu=cortex-m4 -mtune=cortex-m4 -march=armv7e-m+nofp -mthumb -fpie -DPIE -ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin -Wall -g -Os -isystem $(FUZIX_ROOT)/Library/include -isystem $(FUZIX_ROOT)/Library/include/armm4
 CFLAGS += -DNSOCKET=4
 
-LINKER_OPT = -L$(FUZIX_ROOT)/Library/libs -lc$(PLATFORM) -pie -static -no-dynamic-linker -z max-page-size=4
+LINKER_OPT = -pie -static -no-dynamic-linker -z max-page-size=4 -T $(FUZIX_ROOT)/Library/elf2fltarm.ld --no-export-dynamic -Bstatic -no-dynamic-linker
 LIBGCCDIR = $(dir $(shell $(CC) $(CFLAGS) -print-libgcc-file-name))
-LINKER_OPT += -L$(LIBGCCDIR) -lgcc -T $(FUZIX_ROOT)/Library/elf2fltarm.ld --no-export-dynamic -Bstatic -no-dynamic-linker
+LINKER_TAIL = -L$(FUZIX_ROOT)/Library/libs -lc$(PLATFORM) -L$(LIBGCCDIR) -lgcc
 STRIP_OPT =
 CRT0 = $(FUZIX_ROOT)/Library/libs/crt0_$(PLATFORM).o
 CRT0NS = $(FUZIX_ROOT)/Library/libs/crt0nostdio_$(PLATFORM).o
