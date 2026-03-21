@@ -11,7 +11,7 @@ all: $(APPS) size.report
 $(APPS): $(CRT0)
 
 $(APPS) : %: %.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 	$(STRIP) $(STRIP_OPT) -o $@ $@.debug
 
 size.report: $(APPS) $(APPSNS)

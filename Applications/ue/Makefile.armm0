@@ -10,7 +10,7 @@ OBJS = $(SRCS:.c=.o)
 all: $(APPS) size.report
 
 ue.fuzix: $(CRT0NS) ue.o term-fuzix.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -19,7 +19,7 @@ else
 endif
 
 ue.ansi: $(CRT0NS) ue.o term-ansi.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -28,7 +28,7 @@ else
 endif
 
 ue: $(CRT0) ue.o term.o
-	$(LINKER) $^ -o $@.debug -ltermcap$(PLATFORM) $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug -ltermcap$(PLATFORM) $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin

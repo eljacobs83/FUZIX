@@ -11,7 +11,7 @@ OBJS = $(CSRCS:.c=.o)
 all: levee
 
 levee: $(OBJS) $(CRT0)
-	$(LINKER) -o levee.debug $(CRT0) $(OBJS) $(LINKER_OPT)
+	$(LINKER) -o levee.debug $(CRT0) $(OBJS) $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o levee.bin $(STRIP_OPT) levee.debug
 	$(ELF2FUZIX) -o levee levee.bin
