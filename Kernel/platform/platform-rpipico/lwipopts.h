@@ -36,6 +36,7 @@
 #define TCP_WND                 (2 * TCP_MSS)
 #define TCP_SND_BUF             (2 * TCP_MSS)
 #define TCP_SND_QUEUELEN        4
+#define TCP_SNDQUEUELOWAT       2   /* must be < TCP_SND_QUEUELEN */
 
 /* Required by pico_cyw43_arch */
 #define LWIP_NETIF_HOSTNAME     1
