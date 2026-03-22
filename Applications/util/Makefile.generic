@@ -138,7 +138,7 @@ $(APPTC): $(CRT0)
 $(APPCURSES): $(CRT0)
 
 $(APPS) $(APPSNS): %: %.o
-	$(LINKER) $^ -o $@.debug $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -147,7 +147,7 @@ else
 endif
 
 $(APPTC): %: %.o
-	$(LINKER) $^ -o $@.debug -ltermcap$(PLATFORM) $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug -ltermcap$(PLATFORM) $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
@@ -156,7 +156,7 @@ else
 endif
 
 $(APPCURSES): %: %.o
-	$(LINKER) $^ -o $@.debug -lcurses$(PLATFORM) -ltermcap$(PLATFORM) $(LINKER_OPT)
+	$(LINKER) $^ -o $@.debug -lcurses$(PLATFORM) -ltermcap$(PLATFORM) $(LINKER_OPT) $(LINKER_TAIL)
 ifdef ELF2FUZIX
 	$(STRIP) -o $@.bin $(STRIP_OPT) $@.debug
 	$(ELF2FUZIX) -o $@ $@.bin
