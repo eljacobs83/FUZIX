@@ -30,5 +30,7 @@ Welcome to Fuzix's documentation!
    BankedZ80
    Z80Thunked
    RC2014
+   Testing
+   TechDebt
 
 * :ref:`search`

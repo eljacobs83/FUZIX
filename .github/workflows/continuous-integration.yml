@@ -80,4 +80,6 @@ jobs:
           fi
           make diskimage ${{ env.target }} && \
           ./Build/tests/test-${{ matrix.target }}
+        else
+          echo "No automated test for ${{ matrix.target }} (build-only); see docs/Testing.md to add one"
         fi
