@@ -95,8 +95,11 @@ Bring-up checklist for the scaffolded drivers and the still-missing pieces:
 
 ## Testing
 
-There is no free RP2040/RP2350 emulator in CI, so the `rpipico` targets are
-**build-only** in CI and the PicoCalc variant is validated on hardware. See
-[Testing](Testing.md) for the FUZIX automated-test harness (and how a target
-would plug into it if a suitable emulator becomes available), and
+There is no free RP2040/RP2350 emulator in CI, so all `rpipico` jobs are
+**build-only** and actual LCD/keyboard behaviour is validated on hardware. CI
+does, however, compile the PicoCalc variant: the `rpipico-picocalc` job builds
+the kernel for `SUBTARGET=pico2 BOARD=picocalc` (RP2350 + the LCD/keyboard/font
+sources), and the `armm4-libs` job builds the native Cortex-M33 userspace
+libraries. See [Testing](Testing.md) for the FUZIX automated-test harness (and
+how a target would plug into it if a suitable emulator becomes available), and
 [TechDebt](TechDebt.md) for the kernel-wide work-marker inventory.

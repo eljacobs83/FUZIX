@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false # keep on building even if one target fails
       matrix:
-        target: [appleiie, dragon-mooh, dragon-nx32, esp32, esp8266, multicomp09, rbc-mark4, rcbus-6502, rcbus-68008, rpipico, sc108, tiny68k, armm0-libc]
+        target: [appleiie, dragon-mooh, dragon-nx32, esp32, esp8266, multicomp09, rbc-mark4, rcbus-6502, rcbus-68008, rpipico, rpipico-picocalc, sc108, tiny68k, armm0-libc, armm4-libs]
     runs-on: ubuntu-24.04
     steps:
     - uses: actions/checkout@v3
@@ -26,6 +26,11 @@ jobs:
           armm0-libc)
           PKGS="cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib"
           echo "target=USERCPU=armm0" >> $GITHUB_ENV
+          echo "sub_target=libs" >> $GITHUB_ENV
+          ;;
+          armm4-libs)
+          PKGS="cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib"
+          echo "target=USERCPU=armm4" >> $GITHUB_ENV
           echo "sub_target=libs" >> $GITHUB_ENV
           ;;
           dragon-mooh|dragon-nx32|multicomp09)
@@ -64,6 +69,11 @@ jobs:
           rpipico)
           PKGS="cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib"
           echo "target=TARGET=${{ matrix.target }}" >> $GITHUB_ENV
+          echo "sub_target=kernel" >> $GITHUB_ENV
+          ;;
+          rpipico-picocalc)
+          PKGS="cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib"
+          echo "target=TARGET=rpipico SUBTARGET=pico2 BOARD=picocalc" >> $GITHUB_ENV
           echo "sub_target=kernel" >> $GITHUB_ENV
           ;;
           esac
