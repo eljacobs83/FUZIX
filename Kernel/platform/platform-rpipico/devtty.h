@@ -21,6 +21,18 @@ struct ttymap
 
 #define TTYDRV_UART 0
 #define TTYDRV_USB 1
+#ifdef CONFIG_PICOCALC
+#define TTYDRV_LCD 2
+
+/* PicoCalc LCD console + I2C keyboard (devlcd.c / devkbd.c). */
+extern void lcd_init(void);
+extern void lcdconsole_putc(uint8_t devn, uint8_t c);
+extern ttyready_t lcdconsole_ready(uint8_t devn);
+extern void lcdconsole_sleeping(uint8_t devn);
+extern int lcdconsole_getc(uint8_t devn);
+extern void kbd_init(void);
+extern void kbd_poll(void);
+#endif
 
 extern int ttymap_count;
 extern struct ttymap ttymap[NUM_DEV_TTY+1];
