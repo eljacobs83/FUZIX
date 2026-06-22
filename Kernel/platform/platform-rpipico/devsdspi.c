@@ -42,6 +42,9 @@
 #define Pico_SD_RX  16 // MISO
 #define Pico_SD_CS  17 // SD_CS
 
+// GPIO 16/18/19 are on SPI0 for both the RP2040 and RP2350.
+#define Pico_SD_SPI_MOD spi0
+
 #else
 
 /* Pico SPI GPIO connected to SD SPIO - David Given's Arrangement */

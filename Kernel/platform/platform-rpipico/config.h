@@ -23,9 +23,15 @@
  *      TX  GPIO 3
  *      RX  GPIO 4
  *      CS  GPIO 5
+ *
+ * The board variant is normally supplied by the build (the BOARD make
+ * variable, passed through CMake as -DFUZIX_BOARD=...). If nothing was
+ * supplied we default to the RC2040 pin mapping below.
  */
 
+#if !defined(CONFIG_RC2040) && !defined(CONFIG_MAKER_PI) && !defined(CONFIG_PICOCALC)
 #define CONFIG_RC2040
+#endif
 
 /* We have a GPIO interface */
 #define CONFIG_DEV_GPIO
@@ -73,9 +79,47 @@
 
 #define CONFIG_32BIT
 #define CONFIG_USERMEM_DIRECT
-/* Serial TTY, no VT or font */
+
+#ifdef CONFIG_PICOCALC
+/*
+ * PicoCalc has an on-board ILI9488-class LCD and an STM32 keyboard on I2C,
+ * so it gets a real VT console driven by the shared Kernel/vt.c code path
+ * (see devlcd.c / devkbd.c). Everything below is PicoCalc-only.
+ */
+#define CONFIG_VT
+#define CONFIG_FONT8X8
+
+/* 320x320 panel, 8x8 cells -> 40x40 character console.
+ * TODO: confirm the exact panel resolution against the PicoCalc schematic. */
+#define VT_WIDTH	40
+#define VT_HEIGHT	40
+#define VT_RIGHT	(VT_WIDTH - 1)
+#define VT_BOTTOM	(VT_HEIGHT - 1)
+
+/* ILI9488 LCD on SPI. TODO: confirm pins/controller against schematic. */
+#define LCD_SPI_MOD	spi1
+#define LCD_PIN_SCK	10
+#define LCD_PIN_TX	11	/* MOSI */
+#define LCD_PIN_RX	12	/* MISO */
+#define LCD_PIN_CS	13
+#define LCD_PIN_DC	14	/* data/command */
+#define LCD_PIN_RST	15	/* reset */
+
+/* STM32 keyboard controller on I2C. TODO: confirm bus/pins/address. */
+#define KBD_I2C_MOD	i2c1
+#define KBD_PIN_SDA	6
+#define KBD_PIN_SCL	7
+#define KBD_I2C_ADDR	0x1F
+#define KBD_I2C_BAUD	100000
+
+/* One extra TTY for the on-board LCD+keyboard console. */
+#define NUM_DEV_TTY_LCD	1
+#else
+/* Serial TTY only, no VT or font. */
 #undef CONFIG_VT
 #undef CONFIG_FONT8X8
+#define NUM_DEV_TTY_LCD	0
+#endif
 
 /* Built in NAND flash. Warning, it's unstable. */
 #define CONFIG_PICO_FLASH
@@ -140,7 +184,7 @@ extern uint8_t progbase[USERMEM];
 #define DEV_UART_1_CTS_PIN 8
 #define DEV_UART_1_RTS_PIN 9
 #define NUM_DEV_TTY_USB 4 /* min 1 max 4. */
-#define NUM_DEV_TTY (NUM_DEV_TTY_UART + NUM_DEV_TTY_USB)
+#define NUM_DEV_TTY (NUM_DEV_TTY_UART + NUM_DEV_TTY_USB + NUM_DEV_TTY_LCD)
 #define DEV_USB_DETECT_TIMEOUT 5000 /* (ms) Total timeout time to detect USB host connection*/
 #define DEV_USB_INIT_TIMEOUT 2000 /* (ms) Total timeout to try not swallow messages */
 

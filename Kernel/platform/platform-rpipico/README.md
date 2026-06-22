@@ -83,6 +83,20 @@ SUBTARGET=pico2 diskimage`
 Go to `Kernel/platform/platform-rpipico`. You will see `build/fuzix.uf2` and
 `filesystem.uf2`.
 
+`SUBTARGET` selects the chip/module (`pico`, `pico_w`, `pico2`, `pico2_w`). A
+second variable, `BOARD`, selects the FUZIX board variant (SD-card pins and
+onboard peripherals): `rc2040` (default), `makerpi`, or `picocalc`. The two are
+independent, so for example a PicoCalc fitted with a Pico 2 module is
+`make TARGET=rpipico SUBTARGET=pico2 BOARD=picocalc diskimage`.
+
+### PicoCalc
+
+The [ClockworkPi PicoCalc](https://www.clockworkpi.com/product-page/picocalc) is
+supported as `BOARD=picocalc`, which selects its SD-card pins and (scaffolded)
+on-board LCD console and I2C keyboard. The LCD/keyboard drivers are not yet
+hardware-verified; see [`docs/PicoCalc.md`](../../../docs/PicoCalc.md) for the
+build matrix, hardware notes, and the driver bring-up roadmap.
+
 ### Installing Kernel
 
 - Push and hold the BOOTSEL button as you plug usb into your computer.

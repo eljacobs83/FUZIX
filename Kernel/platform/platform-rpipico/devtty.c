@@ -24,10 +24,13 @@ void no_setup(uint_fast8_t minor, uint_fast8_t devn, uint_fast8_t flags)
     used(flags);
 }
 
-struct ttydriver ttydrivers[2] =
+struct ttydriver ttydrivers[] =
     {
         {rawuart_putc, rawuart_ready, rawuart_sleeping, rawuart_getc, rawuart_setup},
         {usbconsole_putc, usbconsole_ready, usbconsole_sleeping, usbconsole_getc, no_setup},
+#ifdef CONFIG_PICOCALC
+        {lcdconsole_putc, lcdconsole_ready, lcdconsole_sleeping, lcdconsole_getc, no_setup},
+#endif
 };
 
 static void devtty_defconfig(uint8_t drv, int count, int minor)
@@ -54,6 +57,13 @@ void devtty_early_init(void)
 {
     rawuart_early_init();
     core1_init();
+#ifdef CONFIG_PICOCALC
+    /* Bring the LCD up before devtty_init() maps it as the console so boot
+     * messages land on screen. */
+    lcd_init();
+    vtinit();
+    kbd_init();
+#endif
     devtty_init();
 }
 
@@ -74,6 +84,15 @@ void devtty_init(void)
 
     if (defconfig)
     {
+#ifdef CONFIG_PICOCALC
+        /* PicoCalc: the on-board LCD + keyboard is the primary console (tty1);
+         * USB and UART follow for remote access. */
+        devtty_defconfig(TTYDRV_LCD, NUM_DEV_TTY_LCD, 1);
+        devtty_defconfig(TTYDRV_USB, NUM_DEV_TTY_USB, 1 + NUM_DEV_TTY_LCD);
+        devtty_defconfig(TTYDRV_UART, NUM_DEV_TTY_UART,
+                         1 + NUM_DEV_TTY_LCD + NUM_DEV_TTY_USB);
+        kprintf("devtty: %s as default tty\n", "lcd");
+#else
         absolute_time_t until = delayed_by_ms(get_absolute_time(), DEV_USB_DETECT_TIMEOUT);
 
         int usb_detected = 0;
@@ -103,6 +122,7 @@ void devtty_init(void)
             devtty_defconfig(TTYDRV_USB, NUM_DEV_TTY_USB, 1 + NUM_DEV_TTY_UART);
             kprintf("devtty: %s as default tty\n", "uart");
         }
+#endif
         ttymap_count = NUM_DEV_TTY;
     }
 }

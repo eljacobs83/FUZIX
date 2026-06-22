@@ -50,6 +50,9 @@ static void timer_tick_cb(unsigned alarm)
     update_us_since_boot(&next, to_us_since_boot(now) + (1000000 / TICKSPERSEC));
 
     tty_interrupt();
+#ifdef CONFIG_PICOCALC
+    kbd_poll();
+#endif
     timer_interrupt();
 
     if (hardware_alarm_set_target(0, next))
