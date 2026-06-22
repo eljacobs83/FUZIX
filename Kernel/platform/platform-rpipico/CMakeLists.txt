@@ -10,21 +10,9 @@ option(TOTALMEM "specify how much TOTALMEM is present" 0)
 option(WIFI_SSID     "WiFi SSID to connect at boot (optional)"     "")
 option(WIFI_PASSWORD "WiFi password (optional, empty = open)"       "")
 
-# FUZIX board variant: selects SD-card pins and onboard peripherals (LCD,
-# keyboard). Independent of PICO_BOARD, which selects the chip. Passed in by
-# the platform Makefile from the BOARD make variable.
-if(NOT DEFINED FUZIX_BOARD OR FUZIX_BOARD STREQUAL "")
-    set(FUZIX_BOARD "rc2040")
-endif()
-
-if(FUZIX_BOARD STREQUAL "picocalc")
-    set(FUZIX_BOARD_DEFINE CONFIG_PICOCALC)
-elseif(FUZIX_BOARD STREQUAL "makerpi")
-    set(FUZIX_BOARD_DEFINE CONFIG_MAKER_PI)
-else()
-    set(FUZIX_BOARD_DEFINE CONFIG_RC2040)
-endif()
-message(STATUS "FUZIX board variant: ${FUZIX_BOARD} (${FUZIX_BOARD_DEFINE})")
+# This tree is PicoCalc-only: the board is always the ClockworkPi PicoCalc, so
+# CONFIG_PICOCALC is defined unconditionally. PICO_BOARD still selects the chip
+# (pico / pico_w / pico2 / pico2_w).
 
 # Detect wireless builds: PICO_BOARD ending with _w (pico_w, pico2_w)
 if(PICO_BOARD MATCHES ".*_w$")
@@ -46,7 +34,7 @@ set(COMMON_DEFINITIONS
     PICO_NO_BINARY_INFO=1
     PICO_TIME_DEFAULT_ALARM_POOL_DISABLED
     TOTALMEM=${TOTALMEM}
-    ${FUZIX_BOARD_DEFINE}
+    CONFIG_PICOCALC
 )
 
 if(FUZIX_CYW43_BUILD)
@@ -130,15 +118,13 @@ if(FUZIX_CYW43_BUILD)
     list(APPEND FUZIX_SOURCES ../../dev/net/net_cyw43.c)
 endif()
 
-# PicoCalc adds the ILI9488 LCD console and the STM32 I2C keyboard.
-if(FUZIX_BOARD STREQUAL "picocalc")
-    list(APPEND FUZIX_SOURCES
-        devlcd.c
-        devkbd.c
-        fontdata8x8.c
-        ../../vt.c
-    )
-endif()
+# PicoCalc's ILI9488 LCD console and STM32 I2C keyboard.
+list(APPEND FUZIX_SOURCES
+    devlcd.c
+    devkbd.c
+    fontdata8x8.c
+    ../../vt.c
+)
 
 add_executable(fuzix ${FUZIX_SOURCES})
 
@@ -150,9 +136,8 @@ set(FUZIX_LIBS
 	tinyusb_device
 )
 
-if(FUZIX_BOARD STREQUAL "picocalc")
-    list(APPEND FUZIX_LIBS hardware_i2c)
-endif()
+# PicoCalc keyboard is on I2C.
+list(APPEND FUZIX_LIBS hardware_i2c)
 
 if(FUZIX_CYW43_BUILD)
     # pico_cyw43_arch_lwip_poll: single-threaded poll-based lwIP integration.

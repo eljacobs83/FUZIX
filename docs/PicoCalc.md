@@ -6,35 +6,37 @@ module: a 320×320 colour LCD (ILI9488-class controller), an STM32-based keyboar
 exposed over I2C, an SD-card slot, and audio. It accepts either a **Pico
 (RP2040, Cortex-M0+)** or a **Pico 2 (RP2350, Cortex-M33)** module.
 
-FUZIX supports the PicoCalc as a *board variant* of the `rpipico` platform
-(`Kernel/platform/platform-rpipico/`). The PicoCalc-specific code lives behind
-`CONFIG_PICOCALC`.
+This tree is **PicoCalc-only**: the `rpipico` platform
+(`Kernel/platform/platform-rpipico/`) always builds for the ClockworkPi
+PicoCalc, so `CONFIG_PICOCALC` is always on. The only build choice is which
+Pico-form-factor module is fitted.
 
 ## Building
 
-The build has two independent knobs:
-
-- **`SUBTARGET`** selects the *chip / module*: `pico` or `pico_w` (RP2040) and
-  `pico2` or `pico2_w` (RP2350). This drives `PICO_BOARD`, the amount of RAM
-  (`TOTALMEM`), the `picotool` family, and — importantly — the userspace CPU.
-- **`BOARD`** selects the *FUZIX board variant* (SD-card pins + onboard
-  peripherals): `rc2040` (default), `makerpi`, or `picocalc`.
-
-So:
+The single build knob is **`SUBTARGET`**, which selects the *chip / module*:
+`pico` or `pico_w` (RP2040) and `pico2` or `pico2_w` (RP2350). It drives
+`PICO_BOARD`, the amount of RAM (`TOTALMEM`), the `picotool` family, and —
+importantly — the userspace CPU. `SUBTARGET` defaults to `pico`.
 
 ```sh
 # PicoCalc on a Pico (RP2040)
-make TARGET=rpipico SUBTARGET=pico  BOARD=picocalc diskimage
+make TARGET=rpipico SUBTARGET=pico    diskimage
+
+# PicoCalc on a Pico W (RP2040 + CYW43 wireless)
+make TARGET=rpipico SUBTARGET=pico_w  diskimage
 
 # PicoCalc on a Pico 2 (RP2350)
-make TARGET=rpipico SUBTARGET=pico2 BOARD=picocalc diskimage
+make TARGET=rpipico SUBTARGET=pico2   diskimage
+
+# PicoCalc on a Pico 2 W (RP2350 + CYW43 wireless)
+make TARGET=rpipico SUBTARGET=pico2_w diskimage
 ```
 
 Outputs land in `Kernel/platform/platform-rpipico/`: `build/fuzix.uf2` (kernel)
-and `filesystem.uf2`. Install exactly as for the plain Pico port (hold BOOTSEL,
-plug in USB, copy the `.uf2`, or `picotool load`). See
-`Kernel/platform/platform-rpipico/README.md` for the toolchain prerequisites and
-install details.
+and `filesystem.uf2`. Install by holding BOOTSEL, plugging in USB, and copying
+the `.uf2` (or `picotool load`). See [`BUILD.md`](../BUILD.md) for the toolchain
+prerequisites and full build/deploy walkthrough, and
+`Kernel/platform/platform-rpipico/README.md` for install and runtime details.
 
 ### RP2040 vs RP2350
 
@@ -55,8 +57,7 @@ automatic from `SUBTARGET`.
 
 ### Working / shared with the base Pico port
 - Root filesystem on the onboard NAND flash (`/dev/hda`, Dhara FTL).
-- SD card (`/dev/hdb`) on SPI0 — the PicoCalc SD pins (GPIO 16/17/18/19) are the
-  default when `BOARD=picocalc`.
+- SD card (`/dev/hdb`) on SPI0 — the PicoCalc SD pins (GPIO 16/17/18/19).
 - Console over USB CDC and UART0.
 - Swap to SD card; GPIO via `/dev/gpio`.
 
@@ -97,9 +98,11 @@ Bring-up checklist for the scaffolded drivers and the still-missing pieces:
 
 There is no free RP2040/RP2350 emulator in CI, so all `rpipico` jobs are
 **build-only** and actual LCD/keyboard behaviour is validated on hardware. CI
-does, however, compile the PicoCalc variant: the `rpipico-picocalc` job builds
-the kernel for `SUBTARGET=pico2 BOARD=picocalc` (RP2350 + the LCD/keyboard/font
-sources), and the `armm4-libs` job builds the native Cortex-M33 userspace
-libraries. See [Testing](Testing.md) for the FUZIX automated-test harness (and
-how a target would plug into it if a suitable emulator becomes available), and
+does compile the PicoCalc kernel on both chips — the `rpipico` job builds it for
+the Pico (RP2040, the default `SUBTARGET`) and the `rpipico-picocalc` job builds
+it for the Pico 2 (`SUBTARGET=pico2`, RP2350) — and the `armm4-libs` job builds
+the native Cortex-M33 userspace libraries. Both kernel builds include the
+LCD/keyboard/font sources, which are always compiled in. See
+[Testing](Testing.md) for the FUZIX automated-test harness (and how a target
+would plug into it if a suitable emulator becomes available), and
 [TechDebt](TechDebt.md) for the kernel-wide work-marker inventory.

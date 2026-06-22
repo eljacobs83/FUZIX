@@ -1,17 +1,26 @@
-# The Raspberry Pi Pico port
+# The PicoCalc (Raspberry Pi Pico) port
 
 ## Introduction
 
-The Raspberry Pi Pico is a very small and very cheap microcontroller board based
-around the Raspberry Pi Foundation's RP2040 chip. It's got two Cortex-M0+ cores,
-2MB of onboard NAND flash which can be used for code via a demand-paging system,
-and 264kB of RAM.
+This tree is **PicoCalc-only**: it targets the [ClockworkPi
+PicoCalc](https://www.clockworkpi.com/product-page/picocalc), a small handheld
+built around a Raspberry Pi Pico–form-factor module. It accepts any of the four
+Pico modules — Pico and Pico W (RP2040, Cortex-M0+) or Pico 2 and Pico 2 W
+(RP2350, Cortex-M33) — selected at build time with `SUBTARGET`. See
+[`docs/PicoCalc.md`](../../../docs/PicoCalc.md) for the hardware map, the
+build matrix, and the LCD/keyboard driver roadmap, and
+[`BUILD.md`](../../../BUILD.md) for the toolchain setup and a full build/deploy
+walkthrough.
+
+The module has two cores, 2MB of onboard NAND flash which can be used for code
+via a demand-paging system, and 264kB (RP2040) or 520kB (RP2350) of RAM.
 
 The Fuzix port runs in cooperative multitasking mode with the root filesystem on
-NAND, and with an optional SD card on the second SPI interface for anything
-else. It supports both console over UART and it'll also pretend to be a USB
-serial device. There's enough memory to run four or five processes at once, and
-you can enable swapping to the SD card for up to 15.
+NAND, and with the PicoCalc's on-board SD card on SPI0 for anything else. The
+console is the PicoCalc's on-board LCD + I2C keyboard, and it also supports
+console over UART and pretends to be a USB serial device. There's enough memory
+to run four or five processes at once, and you can enable swapping to the SD card
+for up to 15.
 
 ## Configuration
 
@@ -23,23 +32,12 @@ Out of the box:
 - /dev/hdb is the SD card. Fuzix understands DOS partition tables. It's not hot
   swappable as the SD card is only probed at boot time.
 
-If you have an SD card reader, connect the SD card to the following pins:
+The PicoCalc's on-board SD card is wired to SPI0 (GPIO 18 SCK, 19 MOSI, 16 MISO,
+17 CS); no manual wiring is needed.
 
-        Pico pin     RP2040 pin    SD card pin
-        --------------------------------------
-           16           12            MISO
-           17           13             CS
-           19           14            SCK
-           20           15            MOSI
-
-Remember to also connect the SD card's GND to any Raspberry Pico GND pin and Vcc
-to 3.3V. Not 5V, or it won't work.
-
-![Wiring diagram](doc/wiring.jpg)
-
-The console is accessible either via UART0 (at 115200 baud) or by connecting the
-Pico up via USB to a PC, at which point it'll present itself as a standard USB
-CDC serial device.
+The console is the PicoCalc's on-board LCD and I2C keyboard. It is also
+accessible via UART0 (at 115200 baud) or by connecting the board up via USB to a
+PC, at which point it'll present itself as a standard USB CDC serial device.
 
 **Note:** There's a small delay at startup if USB is connected to attempt to
 print full boot startup. There's a chance that startup message will still be
@@ -76,26 +74,23 @@ You do not need to install the [Raspberry Pi Pico
 SDK](https://www.raspberrypi.org/documentation/pico/getting-started/), up to
 date version will be pulled automatically from git.
 
-To build Pico and Pico W image, run: `make TARGET=rpipico SUBTARGET=pico_w
-diskimage` To build Pico 2 and Pico 2 W, run: `make TARGET=rpipico
-SUBTARGET=pico2 diskimage`
+`SUBTARGET` selects which Pico module is fitted to the PicoCalc; it defaults to
+`pico`. Valid values are `pico` / `pico_w` (RP2040) and `pico2` / `pico2_w`
+(RP2350):
+
+```sh
+make TARGET=rpipico SUBTARGET=pico    diskimage   # Pico (RP2040)
+make TARGET=rpipico SUBTARGET=pico_w  diskimage   # Pico W (RP2040 + wireless)
+make TARGET=rpipico SUBTARGET=pico2   diskimage   # Pico 2 (RP2350)
+make TARGET=rpipico SUBTARGET=pico2_w diskimage   # Pico 2 W (RP2350 + wireless)
+```
 
 Go to `Kernel/platform/platform-rpipico`. You will see `build/fuzix.uf2` and
 `filesystem.uf2`.
 
-`SUBTARGET` selects the chip/module (`pico`, `pico_w`, `pico2`, `pico2_w`). A
-second variable, `BOARD`, selects the FUZIX board variant (SD-card pins and
-onboard peripherals): `rc2040` (default), `makerpi`, or `picocalc`. The two are
-independent, so for example a PicoCalc fitted with a Pico 2 module is
-`make TARGET=rpipico SUBTARGET=pico2 BOARD=picocalc diskimage`.
-
-### PicoCalc
-
-The [ClockworkPi PicoCalc](https://www.clockworkpi.com/product-page/picocalc) is
-supported as `BOARD=picocalc`, which selects its SD-card pins and (scaffolded)
-on-board LCD console and I2C keyboard. The LCD/keyboard drivers are not yet
-hardware-verified; see [`docs/PicoCalc.md`](../../../docs/PicoCalc.md) for the
-build matrix, hardware notes, and the driver bring-up roadmap.
+The on-board LCD console and I2C keyboard drivers are not yet hardware-verified;
+see [`docs/PicoCalc.md`](../../../docs/PicoCalc.md) for the build matrix,
+hardware notes, and the driver bring-up roadmap.
 
 ### Installing Kernel
 

@@ -9,7 +9,7 @@
  *	all need confirming against the schematic/firmware before bring-up. Those
  *	points are marked TODO.
  *
- *	Build: only compiled for BOARD=picocalc (CONFIG_PICOCALC).
+ *	Build: this tree is PicoCalc-only (CONFIG_PICOCALC always defined).
  */
 
 #include <kernel.h>

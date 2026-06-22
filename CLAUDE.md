@@ -94,3 +94,5 @@ From `ContributionRules`:
 ## Status / Notes
 
 The README warns the Z80 side is mid-migration to the new Fuzix compiler/linker/kernel and may need bleeding-edge external tools; non-Z80 work is generally fine. `STATUS.md` and `ReleaseNotes.md` track per-area progress and what's missing (e.g. ptrace, large filesystems, full select/poll, TCP/IP in progress).
+
+This tree's `rpipico` platform is **PicoCalc-only** (ClockworkPi PicoCalc); the chip/module is chosen with `SUBTARGET` (`pico`/`pico_w` RP2040, `pico2`/`pico2_w` RP2350) and there is no longer a `BOARD` knob. See `BUILD.md` and `docs/PicoCalc.md`.

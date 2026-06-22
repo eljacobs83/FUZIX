@@ -67,13 +67,16 @@ jobs:
           echo "target=TARGET=${{ matrix.target }}" >> $GITHUB_ENV
           ;;
           rpipico)
+          # PicoCalc on a Pico (RP2040). The rpipico tree is PicoCalc-only, so the
+          # default SUBTARGET (pico) already builds the PicoCalc kernel.
           PKGS="cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib"
           echo "target=TARGET=${{ matrix.target }}" >> $GITHUB_ENV
           echo "sub_target=kernel" >> $GITHUB_ENV
           ;;
           rpipico-picocalc)
+          # PicoCalc on a Pico 2 (RP2350).
           PKGS="cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib"
-          echo "target=TARGET=rpipico SUBTARGET=pico2 BOARD=picocalc" >> $GITHUB_ENV
+          echo "target=TARGET=rpipico SUBTARGET=pico2" >> $GITHUB_ENV
           echo "sub_target=kernel" >> $GITHUB_ENV
           ;;
           esac

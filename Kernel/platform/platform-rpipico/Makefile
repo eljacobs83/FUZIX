@@ -10,10 +10,8 @@ ifndef SUBTARGET
 SUBTARGET=pico
 endif
 
-# Set 'BOARD' to the FUZIX board variant (SD card pins + onboard peripherals).
-# This is independent of the chip selected by SUBTARGET above.
-# valid values: rc2040 (default), makerpi, picocalc
-BOARD ?= rc2040
+# This tree is PicoCalc-only: every build is for the ClockworkPi PicoCalc, so
+# there is no board variant to select. The chip is still chosen by SUBTARGET.
 
 ifeq ($(SUBTARGET),pico)
 TOTALMEM=160
@@ -63,7 +61,7 @@ build/fuzix.elf: ../../version.c build/Makefile
 
 build/Makefile: CMakeLists.txt $(wildcard ../../*.[chS]) $(wildcard ../../*/*.[chS])
 	mkdir -p build
-	(cd build && cmake -DPICO_BOARD=${SUBTARGET} -DTOTALMEM=${TOTALMEM} -DFUZIX_BOARD=${BOARD} ..)
+	(cd build && cmake -DPICO_BOARD=${SUBTARGET} -DTOTALMEM=${TOTALMEM} ..)
 
 image:: world
 	./update-flash.sh
