@@ -2,35 +2,18 @@
 #define CONFIG_H
 #include "tusb_config.h"
 /*
- * Set this according to your SD card pins
- *  CONFIG_RC2040
- *      SCK GPIO 14
- *      TX  GPIO 15
- *      RX  GPIO 12
- *      CS  GPIO 13
- *  CONFIG_MAKER_PI
- *	    SCK GPIO 10
- *	    TX  GPIO 11
- *	    RX  GPIO 12
- *	    CS  GPIO 15
- *  CONFIG_PICOCALC
- *	    SCK GPIO 18
- *	    TX  GPIO 19
- *	    RX  GPIO 16
- *	    CS  GPIO 17
- *  If Undefined
- *      SCK GPIO 2
- *      TX  GPIO 3
- *      RX  GPIO 4
- *      CS  GPIO 5
+ * This tree is PicoCalc-only. The PicoCalc SD card is on SPI0:
+ *      SCK GPIO 18
+ *      TX  GPIO 19  (MOSI)
+ *      RX  GPIO 16  (MISO)
+ *      CS  GPIO 17
  *
- * The board variant is normally supplied by the build (the BOARD make
- * variable, passed through CMake as -DFUZIX_BOARD=...). If nothing was
- * supplied we default to the RC2040 pin mapping below.
+ * CONFIG_PICOCALC is normally supplied by the build (CMake passes
+ * -DCONFIG_PICOCALC). Define it here too so the header is self-contained.
  */
 
-#if !defined(CONFIG_RC2040) && !defined(CONFIG_MAKER_PI) && !defined(CONFIG_PICOCALC)
-#define CONFIG_RC2040
+#ifndef CONFIG_PICOCALC
+#define CONFIG_PICOCALC
 #endif
 
 /* We have a GPIO interface */
@@ -80,11 +63,10 @@
 #define CONFIG_32BIT
 #define CONFIG_USERMEM_DIRECT
 
-#ifdef CONFIG_PICOCALC
 /*
  * PicoCalc has an on-board ILI9488-class LCD and an STM32 keyboard on I2C,
  * so it gets a real VT console driven by the shared Kernel/vt.c code path
- * (see devlcd.c / devkbd.c). Everything below is PicoCalc-only.
+ * (see devlcd.c / devkbd.c).
  */
 #define CONFIG_VT
 #define CONFIG_FONT8X8
@@ -114,12 +96,6 @@
 
 /* One extra TTY for the on-board LCD+keyboard console. */
 #define NUM_DEV_TTY_LCD	1
-#else
-/* Serial TTY only, no VT or font. */
-#undef CONFIG_VT
-#undef CONFIG_FONT8X8
-#define NUM_DEV_TTY_LCD	0
-#endif
 
 /* Built in NAND flash. Warning, it's unstable. */
 #define CONFIG_PICO_FLASH

@@ -9,8 +9,8 @@
  *	ClockworkPi PicoCalc schematic and the panel controller datasheet before
  *	bring-up.
  *
- *	Build: only compiled for BOARD=picocalc (CONFIG_PICOCALC), wired in by
- *	CMakeLists.txt.
+ *	Build: this tree is PicoCalc-only (CONFIG_PICOCALC always defined); wired
+ *	in by CMakeLists.txt.
  */
 
 #include <kernel.h>

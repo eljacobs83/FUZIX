@@ -6,7 +6,7 @@
  *	self-contained CP437-style font so the console is legible at first power
  *	on; swap in a vetted/branded font later if exact metrics matter.
  *
- *	Build: only compiled for BOARD=picocalc (CONFIG_PICOCALC).
+ *	Build: this tree is PicoCalc-only (CONFIG_PICOCALC always defined).
  */
 
 #include <stdint.h>

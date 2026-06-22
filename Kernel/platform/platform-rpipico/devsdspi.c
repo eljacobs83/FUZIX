@@ -11,31 +11,7 @@
 #include "config.h"
 #include <hardware/spi.h>
 
-#ifdef CONFIG_RC2040
-
-/* RC2040 board */
-/* Pico SPI GPIO connected to SD SPI1 */
-#define Pico_SD_SCK 14
-#define Pico_SD_TX  15
-#define Pico_SD_RX  12
-#define Pico_SD_CS  13
-
-//Pico spi0 or spi1 must match GPIO pins used above.
-#define Pico_SD_SPI_MOD spi1
-
-#elif defined(CONFIG_MAKER_PI)
-// Maker pico board
-// https://www.adafruit.com/product/5160
-#define Pico_SD_SCK 10
-#define Pico_SD_TX  11
-#define Pico_SD_RX  12
-#define Pico_SD_CS  15
-
-#define Pico_SD_SPI_MOD spi1
-
-#elif defined(CONFIG_PICOCALC)
-
-// Picocalc
+// PicoCalc SD card
 // https://www.clockworkpi.com/product-page/picocalc
 #define Pico_SD_SCK 18 //
 #define Pico_SD_TX  19 // MOSI
@@ -44,19 +20,6 @@
 
 // GPIO 16/18/19 are on SPI0 for both the RP2040 and RP2350.
 #define Pico_SD_SPI_MOD spi0
-
-#else
-
-/* Pico SPI GPIO connected to SD SPIO - David Given's Arrangement */
-#define Pico_SD_SCK 2
-#define Pico_SD_TX  3
-#define Pico_SD_RX  4
-#define Pico_SD_CS  5
-
-//Pico spi0 or spi1 must match GPIO pins used above.
-#define Pico_SD_SPI_MOD spi0
-
-#endif
 
 #define SLOW_SPEED 250000
 #define FAST_SPEED 4000000
