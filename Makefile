@@ -146,6 +146,33 @@ tools:
 gtags:
 	gtags
 
+.PHONY: help
+help:
+	@echo 'FUZIX build system'
+	@echo ''
+	@echo 'Usage: make TARGET=<target> [goal]'
+	@echo ''
+	@echo 'Common goals:'
+	@echo '  all           build everything (default goal)'
+	@echo '  kernel        build the kernel only'
+	@echo '  libs          build the userspace libraries only'
+	@echo '  apps          build the applications only'
+	@echo '  diskimage     build bootable filesystem image(s)'
+	@echo '  clean         remove build output for this target'
+	@echo '  list-targets  list all known targets and their CPU'
+	@echo ''
+	@echo 'TARGET defaults to "$(TARGET)" if unset; always pass TARGET= explicitly.'
+	@echo 'Output images land in Images/$$(TARGET)/.'
+	@echo 'Example: make TARGET=rcbus-6502 -j`nproc`'
+
+.PHONY: list-targets
+list-targets:
+	@for d in Kernel/platform/platform-*/; do \
+		t=$${d#Kernel/platform/platform-}; t=$${t%/}; \
+		cpu=`sed -n 's/^[ 	]*export[ 	]*CPU[ 	]*=[ 	]*//p' $$d/target.mk 2>/dev/null | head -1`; \
+		printf '%-20s %s\n' "$$t" "$$cpu"; \
+	done
+
 kernel: ltools
 	mkdir -p Images/$(TARGET)
 	+(cd Kernel; $(MAKE))
