@@ -34,11 +34,11 @@ rg -n -e '\b(FIXME|TODO|XXX|HACK)\b' -g 'Kernel/*.c' -g 'Kernel/*.h' .
 
 ## Whole-tree snapshot
 
-Scope: `*.c` / `*.h`. **Grand total: 1799 markers across 715 files.**
+Scope: `*.c` / `*.h`. **Grand total: 1798 markers across 715 files.**
 
 | Tree | Count | Notes |
 |---|---:|---|
-| `Kernel/` | 910 | The OS itself; see the kernel breakdown below. |
+| `Kernel/` | 909 | The OS itself; see the kernel breakdown below. |
 | `Applications/` | 799 | Userspace programs — mostly imported/ported code (see below). |
 | `Library/` | 75 | libc + per-CPU link glue. |
 | `Standalone/` | 9 | Host-side `build-filesystem` / `mkftl` tooling. |
@@ -51,11 +51,11 @@ programs that are only built where used.
 
 ## Kernel breakdown
 
-Scope: `*.c` / `*.h` under `Kernel/`. **Total: 910.**
+Scope: `*.c` / `*.h` under `Kernel/`. **Total: 909.**
 
 | Bucket | Path | Count | Notes |
 |---|---|---:|---|
-| **Core kernel** | `Kernel/*.c`, `Kernel/*.h` | 66 | Portable code built for every target — highest leverage. |
+| **Core kernel** | `Kernel/*.c`, `Kernel/*.h` | 65 | Portable code built for every target — highest leverage. |
 | Memory management | `Kernel/mm/` | 45 | Bank/flat allocators, shared across MMU-less ports. |
 | Shared drivers | `Kernel/dev/` | 114 | Of which `dev/net/`: 30. |
 | Core headers | `Kernel/include/` | 15 | |
@@ -75,7 +75,7 @@ Files with the most core markers (`Kernel/*.c`):
 
 | File | Count | Theme |
 |---|---:|---|
-| `Kernel/filesys.c` | 9 | Big-block-size FS support, permission checks, efficiency. |
+| `Kernel/filesys.c` | 8 | Big-block-size FS support, permission checks, efficiency. |
 | `Kernel/devio.c` | 9 | Buffer-cache locking, sleeping I/O, 32-bit safety. |
 | `Kernel/tty.c` | 8 | IRQ races, `select` support, queue batching. |
 | `Kernel/syscall_proc.c` | 5 | Process syscalls. |
@@ -106,7 +106,6 @@ authoritative set.
   the matrix):
   - `Kernel/filesys.c:448` — "generates crap code on most compilers so we probably ought to ..."
   - `Kernel/inode.c:85` — "we end up doing the ino - udata comparison 3 times, fix this"
-  - `Kernel/filesys.c:411` — "add strncpy and use for this"
 
 ## Userspace breakdown (`Applications/`, `Library/`)
 

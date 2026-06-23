@@ -407,11 +407,12 @@ bool ch_link(register inoptr wd, uint8_t *oldname, uint8_t *newname, inoptr nind
         return false;                  /* Entry not found */
     }
 
-    memcpy(curentry.d_name, newname, FILENAME_LEN);
-    /* FIXME: add strncpy and use for this */
-    for(i = 0; i < FILENAME_LEN; ++i)
-        if(curentry.d_name[i] == '\0')
-            break;
+    /* Copy newname into the slot with strncpy() semantics: copy up to
+       FILENAME_LEN bytes, stop at the terminating NUL, and NUL-pad the rest.
+       Unlike the old memcpy() this never reads past the end of newname when
+       the name is shorter than FILENAME_LEN. */
+    for(i = 0; i < FILENAME_LEN && newname[i]; ++i)
+        curentry.d_name[i] = newname[i];
     for(; i < FILENAME_LEN; ++i)
         curentry.d_name[i] = '\0';
 
