@@ -245,11 +245,16 @@ void gettable(void)
 	printf("uud: Incomplete translation table.\n");
 	exit(6);
     }
-    cpt = buf + strlen(buf) - 1;
-    *cpt = ' ';
-    while (*(cpt) == ' ') {
-	*cpt = 0;
-	cpt--;
+    /* Trim trailing blanks from the table line. Work with a length, not a
+       pointer, so a blank or all-spaces line never forms a pointer before
+       the start of buf (which would be undefined behaviour). */
+    {
+	size_t len = strlen(buf);
+	if (len) {
+	    buf[len - 1] = ' ';
+	    while (len && buf[len - 1] == ' ')
+		buf[--len] = 0;
+	}
     }
     cpt = buf;
     while ((c = *cpt) != 0) {

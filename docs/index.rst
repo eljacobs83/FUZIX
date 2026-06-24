@@ -16,6 +16,7 @@ Welcome to Fuzix's documentation!
    DevPlatforms
    DiskFormats
    build-filesystem-ng
+   FilesystemExtents
    MemoryManagement
    ExternalBuffers
    Process
