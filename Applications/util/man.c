@@ -808,12 +808,16 @@ void build_headers(void)
 	strcat(line_header, buffer[1]);
 	strcat(line_header, ")");
 	ch = strlen(line_header);
-	/* Right-justify a copy of the header.  Source and destination overlap
-	   once the header exceeds half the page width, so use memmove (copy
-	   ch+1 bytes to include the terminator); strcpy()'s forward copy would
-	   corrupt the source in that case. */
-	memmove(line_header + right_margin - ch, line_header, ch + 1);
-	line_header[ch] = ' ';
+	/* Right-justify a copy of the header, but only when it fits: the args
+	   are each up to 79 chars, so a long name(section) makes ch exceed
+	   right_margin and right_margin - ch would underflow and write before
+	   line_header. Source and destination overlap once the header exceeds
+	   half the width, so use memmove (copy ch+1 bytes to include the
+	   terminator); strcpy()'s forward copy would corrupt the source. */
+	if (ch <= right_margin) {
+		memmove(line_header + right_margin - ch, line_header, ch + 1);
+		line_header[ch] = ' ';
+	}
 
 	ch = strlen(buffer[4]);
 	if (ch > right_margin)
@@ -821,8 +825,11 @@ void build_headers(void)
 	memcpy(line_header + right_margin / 2 - ch / 2, buffer[4], ch);
 
 	memcpy(little_header, line_header, right_margin / 2 + ch / 2 + 1);
-	strcpy(little_header + right_margin - strlen(buffer[2]),
-	       buffer[2]);
+	/* Same guard: skip the right-justify if buffer[2] is wider than the
+	   page, which would make right_margin - strlen() underflow. */
+	if (strlen(buffer[2]) <= (size_t)right_margin)
+		strcpy(little_header + right_margin - strlen(buffer[2]),
+		       buffer[2]);
 
 	memset(line_footer, ' ', right_margin - 6);
 	line_footer[right_margin - 6] = 0;

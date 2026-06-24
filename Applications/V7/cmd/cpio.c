@@ -309,10 +309,10 @@ int ckname(char *namep)
 	if (Rename && !A_directory) {
 		fprintf(Wtty, "Rename <%s>\n", namep);
 		fflush(Wtty);
-		fgets(namep, 128, Rtty);
-		if (feof(Rtty))
+		if (fgets(namep, 128, Rtty) == NULL || feof(Rtty))
 			exit(1);
-		namep[strlen(namep) - 1] = '\0';
+		if (*namep && namep[strlen(namep) - 1] == '\n')
+			namep[strlen(namep) - 1] = '\0';
 		if (strcmp(namep, "")) {
 			printf("Skipped\n");
 			return 0;
