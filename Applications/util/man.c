@@ -808,7 +808,11 @@ void build_headers(void)
 	strcat(line_header, buffer[1]);
 	strcat(line_header, ")");
 	ch = strlen(line_header);
-	strcpy(line_header + right_margin - ch, line_header);
+	/* Right-justify a copy of the header.  Source and destination overlap
+	   once the header exceeds half the page width, so use memmove (copy
+	   ch+1 bytes to include the terminator); strcpy()'s forward copy would
+	   corrupt the source in that case. */
+	memmove(line_header + right_margin - ch, line_header, ch + 1);
 	line_header[ch] = ' ';
 
 	ch = strlen(buffer[4]);
