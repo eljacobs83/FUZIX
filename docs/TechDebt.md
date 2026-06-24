@@ -34,11 +34,11 @@ rg -n -e '\b(FIXME|TODO|XXX|HACK)\b' -g 'Kernel/*.c' -g 'Kernel/*.h' .
 
 ## Whole-tree snapshot
 
-Scope: `*.c` / `*.h`. **Grand total: 1797 markers across 714 files.**
+Scope: `*.c` / `*.h`. **Grand total: 1796 markers across 714 files.**
 
 | Tree | Count | Notes |
 |---|---:|---|
-| `Kernel/` | 909 | The OS itself; see the kernel breakdown below. |
+| `Kernel/` | 908 | The OS itself; see the kernel breakdown below. |
 | `Applications/` | 798 | Userspace programs — mostly imported/ported code (see below). |
 | `Library/` | 75 | libc + per-CPU link glue. |
 | `Standalone/` | 9 | Host-side `build-filesystem` / `mkftl` tooling. |
@@ -51,11 +51,11 @@ programs that are only built where used.
 
 ## Kernel breakdown
 
-Scope: `*.c` / `*.h` under `Kernel/`. **Total: 909.**
+Scope: `*.c` / `*.h` under `Kernel/`. **Total: 908.**
 
 | Bucket | Path | Count | Notes |
 |---|---|---:|---|
-| **Core kernel** | `Kernel/*.c`, `Kernel/*.h` | 65 | Portable code built for every target — highest leverage. |
+| **Core kernel** | `Kernel/*.c`, `Kernel/*.h` | 64 | Portable code built for every target — highest leverage. |
 | Memory management | `Kernel/mm/` | 45 | Bank/flat allocators, shared across MMU-less ports. |
 | Shared drivers | `Kernel/dev/` | 114 | Of which `dev/net/`: 30. |
 | Core headers | `Kernel/include/` | 15 | |
@@ -75,7 +75,7 @@ Files with the most core markers (`Kernel/*.c`):
 
 | File | Count | Theme |
 |---|---:|---|
-| `Kernel/filesys.c` | 8 | Big-block-size FS support, permission checks, efficiency. |
+| `Kernel/filesys.c` | 7 | Permission checks, efficiency (big-block-size now in docs/FilesystemExtents.md). |
 | `Kernel/devio.c` | 9 | Buffer-cache locking, sleeping I/O, 32-bit safety. |
 | `Kernel/tty.c` | 8 | IRQ races, `select` support, queue batching. |
 | `Kernel/syscall_proc.c` | 5 | Process syscalls. |
@@ -96,8 +96,9 @@ authoritative set.
   - `Kernel/select.c:221` — "lock against time race"
 - 32-bit / large-filesystem correctness:
   - `Kernel/devio.c:690` — "not 32-bit safe"
-  - `Kernel/filesys.c:712` — "When we implement the rest of the bigger block size fs support ..."
   - `Kernel/syscall_fs2.c:353` — "needs updating once we pack top bits ..."
+  - (bigger block size / extents: dependency map and remaining work are now in
+    `docs/FilesystemExtents.md`)
 - Incomplete subsystems:
   - `Kernel/tty.c:720` / `Kernel/select.c:25` — `select`/socket support gaps.
   - `Kernel/audio.c:53` — "read/write for DSP devices" not implemented.
@@ -159,7 +160,9 @@ load-bearing ones.
   Missing"): `ptrace` and most of `ulimit`; root-reserved disk blocks; banked
   executables; TCP/IP (in progress); `select`/`poll` (in progress, matches the
   kernel `select.c`/`tty.c` markers above); filesystems larger than 32MB; a
-  smarter scheduler; and disk block/inode allocator optimisations.
+  smarter scheduler; and disk block/inode allocator optimisations. The
+  bigger-block-size / extent work that several of these depend on has its own
+  dependency map and staged plan in `docs/FilesystemExtents.md`.
 - **Concurrency model assumption.** The kernel is built around block I/O and
   user-memory access never blocking/rescheduling (uniprocessor, cooperative).
   The cluster of `devio.c`/`tty.c`/`select.c` locking markers is the cost of

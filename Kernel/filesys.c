@@ -662,6 +662,18 @@ void i_free(uint16_t devno, uint16_t ino)
 }
 
 
+/* Number of BLKSIZE blocks in one allocation extent.  s_shift is the
+ * extent-size shift from the superblock; with s_shift == 0 (the only value
+ * any current target mounts, FS_MAX_SHIFT defaulting to 0) this is 1 and the
+ * block paths behave exactly as before.  See docs/FilesystemExtents.md for the
+ * (still being settled) extent model.
+ */
+static blkno_t fs_extent_blocks(fsptr dev)
+{
+    return (blkno_t)1 << dev->s_shift;
+}
+
+
 /* Blk_alloc is given a device number, and allocates an unused block
  * from it. A returned block number of zero means no more blocks.
  *
@@ -710,16 +722,22 @@ blkno_t blk_alloc(uint16_t devno)
     --dev->s_tfree;
 
    /*
-    * FIXME: When we implement the rest of the bigger block size fs support
-    * this routine is responsible for zeroing the entire extent not just the
-    * BLKSIZE byte block
+    * Zero out the new block.  An extent is fs_extent_blocks() consecutive
+    * blocks based at newno, so zero the whole run.  With s_shift == 0 this
+    * loops exactly once and is identical to the historical single-block
+    * zero; the >1 case (and how an extent maps to physical sectors) is part
+    * of the unfinished bigger-block work - see docs/FilesystemExtents.md.
     */
-    /* Zero out the new block */
-    buf = bread(devno, newno, 2);
-    if (buf == NULL)
-        goto corrupt;
-    blkzero(buf);
-    bawrite(buf);
+    {
+        blkno_t i, n = fs_extent_blocks(dev);
+        for (i = 0; i < n; i++) {
+            buf = bread(devno, newno + i, 2);
+            if (buf == NULL)
+                goto corrupt;
+            blkzero(buf);
+            bawrite(buf);
+        }
+    }
     return newno;
 
 corrupt:
