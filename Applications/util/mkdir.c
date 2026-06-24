@@ -16,9 +16,9 @@ int make_dir(const char *name, int f)
 
     int l = strlen(name) - 1;
 
-    /* FIXME: Size check ! */
-    strlcpy(iname, name, 512);
-    if (l && iname[l] == '/')
+    strlcpy(iname, name, sizeof(iname));
+    /* l < 0 when name is empty; guard so we never touch iname[-1] */
+    if (l > 0 && iname[l] == '/')
         iname[l] = 0;
     if (((line = strrchr(iname, '/')) != NULL) && f) {
 	while ((line > iname) && (*line == '/'))

@@ -39,7 +39,7 @@ int main(int argc, char **argv)
 {
     int i, parent = 0, er = 0;
 
-    if ((argv[1][0] == '-') && (argv[1][1] == 'p'))
+    if (argv[1] && (argv[1][0] == '-') && (argv[1][1] == 'p'))
 	parent = 1;
 
     newmode = 0666 & ~umask(0);

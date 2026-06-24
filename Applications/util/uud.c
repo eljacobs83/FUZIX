@@ -246,10 +246,14 @@ void gettable(void)
 	exit(6);
     }
     cpt = buf + strlen(buf) - 1;
-    *cpt = ' ';
-    while (*(cpt) == ' ') {
-	*cpt = 0;
-	cpt--;
+    /* guard against an empty line, and stop the backward scan at the
+       start of the buffer (an all-spaces line would otherwise underflow) */
+    if (cpt >= buf) {
+	*cpt = ' ';
+	while (cpt >= buf && *cpt == ' ') {
+	    *cpt = 0;
+	    cpt--;
+	}
     }
     cpt = buf;
     while ((c = *cpt) != 0) {

@@ -155,8 +155,11 @@ void cut(void)
 
     while (fgets(line, BUFSIZ, fd)) {
 
-	length = strlen(line) - 1;
-	*(line + length) = 0;
+	length = strlen(line);
+	/* strip the trailing newline if present; don't underflow on an
+	   empty line and don't chop a real char from an unterminated one */
+	if (length && line[length - 1] == '\n')
+		line[--length] = 0;
 
 	switch (mode) {
 	case DUMP_STDIN:

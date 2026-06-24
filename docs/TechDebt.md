@@ -34,12 +34,12 @@ rg -n -e '\b(FIXME|TODO|XXX|HACK)\b' -g 'Kernel/*.c' -g 'Kernel/*.h' .
 
 ## Whole-tree snapshot
 
-Scope: `*.c` / `*.h`. **Grand total: 1798 markers across 715 files.**
+Scope: `*.c` / `*.h`. **Grand total: 1797 markers across 714 files.**
 
 | Tree | Count | Notes |
 |---|---:|---|
 | `Kernel/` | 909 | The OS itself; see the kernel breakdown below. |
-| `Applications/` | 799 | Userspace programs — mostly imported/ported code (see below). |
+| `Applications/` | 798 | Userspace programs — mostly imported/ported code (see below). |
 | `Library/` | 75 | libc + per-CPU link glue. |
 | `Standalone/` | 9 | Host-side `build-filesystem` / `mkftl` tooling. |
 | `GUI/` | 6 | |
@@ -118,7 +118,7 @@ cross-cutting core work.
 | `Applications/CC/` | 251 | The C compiler — by far the largest single sink. |
 | `Applications/games/` | 233 | Ported games (BSD/V7 lineage). |
 | `Applications/assembler/` | 86 | |
-| `Applications/util/` | 72 | Core coreutils-style utilities — the most worth triaging. |
+| `Applications/util/` | 71 | Core coreutils-style utilities — the most worth triaging. |
 | `Applications/V7/` | 29 | V7 `cmd`/`sh`. |
 | `Applications/netd/` | 20 | Network daemon (TCP/IP still in progress). |
 | `Applications/cpnet/`, `ld09/`, `MWC/`, `basic/`, `as09/`, `plato/` | 10–19 each | |
