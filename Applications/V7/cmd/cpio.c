@@ -139,8 +139,10 @@ int chgreel(int x, int fl)
       again:
 	err("If you want to go on, type device/file name when ready\n");
 	devtty = fopen("/dev/tty", "r");
-	fgets(str, 20, devtty);
-	str[strlen(str) - 1] = '\0';
+	if (devtty == NULL || fgets(str, 20, devtty) == NULL)
+		exit(1);
+	if (*str && str[strlen(str) - 1] == '\n')
+		str[strlen(str) - 1] = '\0';
 	if (!*str)
 		exit(1);
 	close(fl);

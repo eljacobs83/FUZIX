@@ -169,7 +169,7 @@ void man(void)
 
 	board();
 	for (;;) {
-		if (gets(buf) == NULL)
+		if (fgets(buf, sizeof buf, stdin) == NULL)
 			exit(0);
 		i = 16 * (buf[0] - '0') + (buf[1] - '0') + 4 * (buf[2] -
 								'0');
