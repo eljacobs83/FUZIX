@@ -139,8 +139,10 @@ int chgreel(int x, int fl)
       again:
 	err("If you want to go on, type device/file name when ready\n");
 	devtty = fopen("/dev/tty", "r");
-	fgets(str, 20, devtty);
-	str[strlen(str) - 1] = '\0';
+	if (devtty == NULL || fgets(str, 20, devtty) == NULL)
+		exit(1);
+	if (*str && str[strlen(str) - 1] == '\n')
+		str[strlen(str) - 1] = '\0';
 	if (!*str)
 		exit(1);
 	close(fl);
@@ -307,10 +309,10 @@ int ckname(char *namep)
 	if (Rename && !A_directory) {
 		fprintf(Wtty, "Rename <%s>\n", namep);
 		fflush(Wtty);
-		fgets(namep, 128, Rtty);
-		if (feof(Rtty))
+		if (fgets(namep, 128, Rtty) == NULL || feof(Rtty))
 			exit(1);
-		namep[strlen(namep) - 1] = '\0';
+		if (*namep && namep[strlen(namep) - 1] == '\n')
+			namep[strlen(namep) - 1] = '\0';
 		if (strcmp(namep, "")) {
 			printf("Skipped\n");
 			return 0;

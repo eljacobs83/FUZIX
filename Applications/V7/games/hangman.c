@@ -103,7 +103,7 @@ void getguess(void)
 	int ok=0,i;
 loop:
 	printf("guess: ");
-	if(gets(gbuf)==NULL)
+	if(fgets(gbuf, sizeof gbuf, stdin)==NULL)
 	{	putchar('\n');
 		exit(0);
 	}

@@ -198,7 +198,7 @@ static void lsfile(char *name, struct stat *statbuf, int flags)
 #if	UIDGID
 		if (!useridknown || (statbuf->st_uid != userid)) {
 			if ((pwd = getpwuid(statbuf->st_uid)) != NULL)
-				strcpy(username, pwd->pw_name);
+				strlcpy(username, pwd->pw_name, sizeof username);
 			else
 				sprintf(username, "%d", statbuf->st_uid);
 			userid = statbuf->st_uid;
@@ -208,7 +208,7 @@ static void lsfile(char *name, struct stat *statbuf, int flags)
 		cp += strlen(cp);
 		if (!groupidknown || (statbuf->st_gid != groupid)) {
 			if ((grp = getgrgid(statbuf->st_gid)) != NULL)
-				strcpy(groupname, grp->gr_name);
+				strlcpy(groupname, grp->gr_name, sizeof groupname);
 			else
 				sprintf(groupname, "%d", statbuf->st_gid);
 			groupid = statbuf->st_gid;
